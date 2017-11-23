@@ -1,12 +1,13 @@
+
 pragma solidity ^0.4.16;
 
 contract Coin {
-    address owner; // owner
-    mapping (address => uint) balances; // array balances
+	
+    address owner;
+    mapping (address => uint) balances;
 
     event Transfer(address from, address to, uint value);
     
-    // init owner
     function Coin() {
         owner = msg.sender;
     }
