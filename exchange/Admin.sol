@@ -16,30 +16,30 @@ contract Admin {
 		_feeRebate = feeRebate;
 	}
 
-	modifier adminValid() {
+	modifier assertAdmin() {
 		if ( msg.sender != _admin ) {
 			require( false );
 		}
 		_;
 	}
 
-	function setAdmin( address admin ) adminValid public {
+	function setAdmin( address admin ) assertAdmin public {
 		_admin = admin;
 	}
 
-	function setFeeAccount( address feeAccount ) adminValid public {
+	function setFeeAccount( address feeAccount ) assertAdmin public {
 		_feeAccount = feeAccount;
 	}
 
-	function  setFeeMake( uint feeMake ) adminValid public {
+	function  setFeeMake( uint feeMake ) assertAdmin public {
 		_feeMake = feeMake;
 	}
 
-	function setFeeTake( uint feeTake ) adminValid public {
+	function setFeeTake( uint feeTake ) assertAdmin public {
 		_feeTake = feeTake;
 	}
 
-	function setFeeRebate( uint feeRebate ) adminValid public {
+	function setFeeRebate( uint feeRebate ) assertAdmin public {
 		_feeRebate = feeRebate;
 	}
 }
