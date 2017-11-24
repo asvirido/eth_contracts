@@ -1,5 +1,25 @@
 pragma solidity ^0.4.16;
 
+contract SafeMath {
+
+	function safeMul(uint a, uint b) internal returns (uint) {
+		uint c = a * b;
+		assert(a == 0 || c / a == b);
+		return c;
+	}
+	
+	function safeSub(uint a, uint b) internal returns (uint) {
+		assert(b <= a);
+		return a - b;
+	}
+
+	function safeAdd(uint a, uint b) internal returns (uint) {
+		uint c = a + b;
+		assert(c>=a && c>=b);
+		return c;
+	}
+}
+
 contract Token {
 
 	uint public 	decimals;
@@ -23,46 +43,73 @@ contract Token {
 }
 
 contract Admin {
-	
-	address public	admin;
-	address public	feeAccount;
-	uint public		feeMake; //percentage times (1 ether)
-	uint public		feeTake; //percentage times (1 ether)
-	uint public		feeRebate; //percentage times (1 ether)
 
-	function Admin( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) public {
-		_admin = admin;
-		_feeAccount = feeAccount;
-		_feeMake = feeMake;
-		_feeTake = feeTake;
-		_feeRebate = feeRebate;
-	}
+	address public	_admin;
+	address public	_feeAccount;
+	uint public		_feeMake; //percentage times (1 ether)
+	uint public		_feeTake; //percentage times (1 ether)
+	uint public		_feeRebate; //percentage times (1 ether)
 
-	modifier adminValid() {
-		if ( msg.sender != admin ) {
+	modifier assertAdmin() {
+		if ( msg.sender != _admin ) {
 			require( false );
 		}
 		_;
 	}
 
-	function changeAdmin( address admin ) adminValid public {
+	function setAdmin( address admin ) assertAdmin public {
 		_admin = admin;
 	}
 
-	function changeFeeAccount( address feeAccount ) adminValid public {
+	function setFeeAccount( address feeAccount ) assertAdmin public {
 		_feeAccount = feeAccount;
 	}
 
-	function  changeFeeMake( uint feeMake ) adminValid public {
+	function  setFeeMake( uint feeMake ) assertAdmin public {
 		_feeMake = feeMake;
 	}
 
-	function changeFeeTake( uint feeTake ) adminValid public {
+	function setFeeTake( uint feeTake ) assertAdmin public {
 		_feeTake = feeTake;
 	}
 
-	function changeFeeRebate( uint feeRebate) adminValid public {
+	function setFeeRebate( uint feeRebate ) assertAdmin public {
 		_feeRebate = feeRebate;
 	}
-	
 }
+
+contract Exchange is Admin, SafeMath{
+
+	// mapping
+
+	// Event 
+
+	function Exchange( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) {
+		_admin = admin;
+		_feeAccount = feeAccount;
+		_feeMake = feeMake;
+		_feeTake = feeTake;
+		_feeRebate = feeRebate;
+	}
+
+	function order() {
+		// code	
+	}
+
+	function  depositEth() payable {
+		// code
+	}
+
+	function depositToken() {
+		// code
+	}
+	
+	function withdrawEth() {
+		// code
+	}
+	
+	function withdrawToken() {
+		//code
+	}	
+}
+// 0x4e760c6Eb830688aaCC4AE30B8f92034Aab911fb
