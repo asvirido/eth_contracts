@@ -78,45 +78,65 @@ contract Admin {
 	}
 }
 
-contract Exchange is Admin, SafeMath{
+contract Exchange is Admin, SafeMath {
 
 	// mapping
+	mapping( address => mapping ( address => uint ) ) public tokens;
 
 	// Event 
-	event Order(uint amount, address user);
-	event Deposit(uint amount, address user);
-	event Withdraw(uint amount, address user);
+	// event Order(address tokenBuy, uint amountBuy, address tokenSell, uint amountSell, address user);
+	event Order( uint amount, address user );
+	event Deposit(address token, address user, uint amount, uint balance);
+	event Withdraw(address token, address user, uint amount, uint balance);
 	
-	function Exchange( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) {
+	/*function Exchange( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) {
 		_admin = admin;
 		_feeAccount = feeAccount;
 		_feeMake = feeMake;
 		_feeTake = feeTake;
 		_feeRebate = feeRebate;
+	}*/
+
+	modifier assertQuantity( uint amount ) { 
+		if ( amount == 0 ) {
+			assert( false );
+		}
 	}
+
+	modifier assertBalance( uint amount, uint balance ) { 
+		if ( balance < amount ) {
+			assert( false );
+		}
+		_;
+	}
+	
+	
 
 	function order() {
 		// code	
-		Order(1);
+		Order( 1, this );
 	}
 
 	function  depositEth() payable {
-		// code
-		Deposit(1);
+		tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
+		Deposit( 0, msh.sender, msg.value, tokens[0][msg.sender] );
+	}
+	
+	function withdrawEth( uint amount ) assertQuantity( amount ) assertBalance( amount, tokens[0][msg.sender] ) {
+		
+		if ( !msg.sender.call.value( amount )()) {
+			assert( false );
+		}
+		tokens[0][msg.sender] = safeSub( tokens[0][msg.sender], amount );
+		Withdraw( 0, msg.sender, amount, tokens[0][msg.sender] );
+	}
+	
+	/*function withdrawToken() {
+		Withdraw( 0, 0, 0, 0 );
 	}
 
 	function depositToken() {
 		// code
-		Deposit(1);
-	}
-	
-	function withdrawEth() {
-		// code
-		Withdraw();
-	}
-	
-	function withdrawToken() {
-		Withdraw();
-	}	
+		Deposit( 0, 0, 0, 0 );
+	}*/
 }
-// 0x4e760c6Eb830688aaCC4AE30B8f92034Aab911fb
