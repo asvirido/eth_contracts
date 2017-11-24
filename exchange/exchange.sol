@@ -101,6 +101,7 @@ contract Exchange is Admin, SafeMath {
 		if ( amount == 0 ) {
 			assert( false );
 		}
+		_;
 	}
 
 	modifier assertBalance( uint amount, uint balance ) { 
@@ -121,8 +122,8 @@ contract Exchange is Admin, SafeMath {
 		tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
 		Deposit( 0, msh.sender, msg.value, tokens[0][msg.sender] );
 	}
-	
-	function withdrawEth( uint amount ) assertQuantity( amount ) assertBalance( amount, tokens[0][msg.sender] ) {
+	// assertBalance( amount, tokens[0][msg.sender] )
+	function withdrawEth( uint amount ) assertQuantity( amount )  {
 		
 		if ( !msg.sender.call.value( amount )()) {
 			assert( false );
