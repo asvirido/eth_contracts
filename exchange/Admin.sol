@@ -42,3 +42,4 @@ contract Admin {
 	function changeFeeRebate( uint feeRebate ) adminValid public {
 		_feeRebate = feeRebate;
 	}
+}
