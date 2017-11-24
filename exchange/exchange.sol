@@ -83,7 +83,10 @@ contract Exchange is Admin, SafeMath{
 	// mapping
 
 	// Event 
-
+	event Order(uint amount, address user);
+	event Deposit(uint amount, address user);
+	event Withdraw(uint amount, address user);
+	
 	function Exchange( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) {
 		_admin = admin;
 		_feeAccount = feeAccount;
@@ -94,22 +97,26 @@ contract Exchange is Admin, SafeMath{
 
 	function order() {
 		// code	
+		Order(1);
 	}
 
 	function  depositEth() payable {
 		// code
+		Deposit(1);
 	}
 
 	function depositToken() {
 		// code
+		Deposit(1);
 	}
 	
 	function withdrawEth() {
 		// code
+		Withdraw();
 	}
 	
 	function withdrawToken() {
-		//code
+		Withdraw();
 	}	
 }
 // 0x4e760c6Eb830688aaCC4AE30B8f92034Aab911fb
