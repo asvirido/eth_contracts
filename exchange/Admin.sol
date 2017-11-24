@@ -1,12 +1,12 @@
 pragma solidity ^0.4.16;
 
 contract Admin {
-	
-	address public	admin;
-	address public	feeAccount;
-	uint public		feeMake; //percentage times (1 ether)
-	uint public		feeTake; //percentage times (1 ether)
-	uint public		feeRebate; //percentage times (1 ether)
+
+	address public	_admin;
+	address public	_feeAccount;
+	uint public		_feeMake; //percentage times (1 ether)
+	uint public		_feeTake; //percentage times (1 ether)
+	uint public		_feeRebate; //percentage times (1 ether)
 
 	function Admin( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) public {
 		_admin = admin;
@@ -17,7 +17,7 @@ contract Admin {
 	}
 
 	modifier adminValid() {
-		if ( msg.sender != admin ) {
+		if ( msg.sender != _admin ) {
 			require( false );
 		}
 		_;
