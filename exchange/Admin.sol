@@ -23,23 +23,23 @@ contract Admin {
 		_;
 	}
 
-	function changeAdmin( address admin ) adminValid public {
+	function setAdmin( address admin ) adminValid public {
 		_admin = admin;
 	}
 
-	function changeFeeAccount( address feeAccount ) adminValid public {
+	function setFeeAccount( address feeAccount ) adminValid public {
 		_feeAccount = feeAccount;
 	}
 
-	function  changeFeeMake( uint feeMake ) adminValid public {
+	function  setFeeMake( uint feeMake ) adminValid public {
 		_feeMake = feeMake;
 	}
 
-	function changeFeeTake( uint feeTake ) adminValid public {
+	function setFeeTake( uint feeTake ) adminValid public {
 		_feeTake = feeTake;
 	}
 
-	function changeFeeRebate( uint feeRebate ) adminValid public {
+	function setFeeRebate( uint feeRebate ) adminValid public {
 		_feeRebate = feeRebate;
 	}
 }
