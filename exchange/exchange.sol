@@ -81,7 +81,7 @@ contract Admin {
 contract Exchange is Admin, SafeMath {
 
 	// mapping
-	mapping( address => mapping ( address => uint ) ) public tokens;
+	mapping( address => mapping( address => uint )) public tokens;
 
 	// Event 
 	// event Order(address tokenBuy, uint amountBuy, address tokenSell, uint amountSell, address user);
@@ -113,17 +113,19 @@ contract Exchange is Admin, SafeMath {
 	
 	
 
-	function order() {
+	/*function order() {
 		// code	
 		Order( 1, this );
-	}
+	}*/
+
 
 	function  depositEth() payable {
 		tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
-		Deposit( 0, msh.sender, msg.value, tokens[0][msg.sender] );
+		Deposit( 0, msg.sender, msg.value, tokens[0][msg.sender] );
 	}
-	// assertBalance( amount, tokens[0][msg.sender] )
-	function withdrawEth( uint amount ) assertQuantity( amount )  {
+	// assertBalance( amount, tokens[0][msg.sender] )]
+	//assertQuantity( amount )
+	function withdrawEth( uint amount ) {
 		
 		if ( !msg.sender.call.value( amount )()) {
 			assert( false );
