@@ -92,16 +92,39 @@ contract Exchange is SafeMath {
         _;
     }
 
-    function  depositEth() payable assertQuantity(msg.value) {
-        tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
-        Deposit( 0, msg.sender, msg.value, tokens[0][msg.sender] );
+	modifier assertToken( address token ) { 
+		if ( token == 0 ) {
+			assert( false );
+		}
+		_; 
+	}
+
+    function 	depositEth() payable assertQuantity( msg.value ) {
+		tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
+		Deposit( 0, msg.sender, msg.value, tokens[0][msg.sender] );
     }
 
-    function withdrawEth( uint amount ) assertQuantity(amount) {
+    function 	withdrawEth( uint amount ) assertQuantity( amount ) {
 		if ( !msg.sender.call.value( amount )()) {
 			assert( false );
 		}
 		tokens[0][msg.sender] = safeSub( tokens[0][msg.sender], amount );
 		Withdraw( 0, msg.sender, amount, tokens[0][msg.sender] );
+	}
+
+	function 	depositToken( address token, uint amount ) assertToken( token ) assertQuantity( amount ) {
+		if ( !Token( token ).transferFrom( msg.sender, this, amount )) {
+			assert( false );
+		}
+		tokens[token][msg.sender] = safeAdd( tokens[token][msg.sender], amount );
+		Deposit( token, msg.sender, amount, tokens[token][msg.sender] );
+	}
+
+	function 	withdrawToken( address token, uint amount ) assertToken( token ) assertQuantity( amount ) {
+		if ( !Token( token ).transfer( msg.sender, amount ) ) {
+			assert( false );
+		}
+	    tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount );
+	    Withdraw( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
 }
