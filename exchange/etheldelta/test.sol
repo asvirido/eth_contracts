@@ -22,9 +22,6 @@ contract SafeMath {
 
 contract Token {
 
-	uint public 	decimals;
-	string public 	name;
-
 	function totalSupply() constant returns ( uint256 supply );
 	
 	function balanceOf( address _owner ) constant returns ( uint256 balance );
