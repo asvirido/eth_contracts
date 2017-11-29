@@ -3,25 +3,25 @@ pragma solidity ^0.4.16;
 contract SafeMath {
 
     function safeMul( uint a, uint b ) internal returns ( uint ) {
-        
-	uint c;
-	
-	c = a * b;
+		
+		uint c;
+		
+		c = a * b;
         assert( a == 0 || c / a == b );
         return c;
     }
     
     function safeSub( uint a, uint b ) internal returns ( uint ) {
-	
-	assert( b <= a );
-	return a - b;
+		
+		assert( b <= a );
+		return a - b;
     }
 
     function safeAdd( uint a, uint b ) internal returns ( uint ) {
-        
-	uint c;
+		
+		uint c;
 	
-	c = a + b;
+		c = a + b;
         assert( c >= a && c >= b );
         return c;
     }
@@ -50,7 +50,7 @@ contract Exchange is SafeMath {
 
     mapping( address => mapping( address => uint )) public tokens;
     mapping( address => mapping( bytes32 => bool )) public orders;
-    mapping(address => mapping( bytes32 => uint )) public orderFills;
+    mapping( address => mapping( bytes32 => uint )) public orderFills;
 
     event Deposit( address token, address user, uint amount, uint balance );
     event Withdraw( address token, address user, uint amount, uint balance );
@@ -59,8 +59,8 @@ contract Exchange is SafeMath {
     event Trade( address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell );
 
     function assertQuantity( uint amount ) private {
-
-        if ( amount == 0 ) {
+        
+		if ( amount == 0 ) {
             assert( false );
         }
     }
@@ -123,6 +123,7 @@ contract Exchange is SafeMath {
 	}
 
 	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock ) {
+		
 		bytes32 hash;
 
 		assertQuantity( amountBuy );
