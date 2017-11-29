@@ -2,20 +2,20 @@ pragma solidity ^0.4.16;
 
 contract SafeMath {
 
-    function safeMul(uint a, uint b) internal returns (uint) {
+    function safeMul( uint a, uint b ) internal returns ( uint ) {
         uint c = a * b;
-        assert(a == 0 || c / a == b);
+        assert( a == 0 || c / a == b );
         return c;
     }
     
-    function safeSub(uint a, uint b) internal returns (uint) {
-		assert(b <= a);
+    function safeSub( uint a, uint b ) internal returns ( uint ) {
+		assert( b <= a );
 		return a - b;
     }
 
-    function safeAdd(uint a, uint b) internal returns (uint) {
+    function safeAdd( uint a, uint b ) internal returns ( uint ) {
         uint c = a + b;
-        assert(c>=a && c>=b);
+        assert( c >= a && c >= b );
         return c;
     }
 }
@@ -24,39 +24,35 @@ contract Token {
 
 	uint public 	decimals;
 	string public 	name;
-	
-	function totalSupply() constant returns (uint256 supply);
-	
-	function balanceOf(address _owner) constant returns (uint256 balance);
-	
-	function transfer(address _to, uint256 _value) returns (bool success);
-	
-	function transferFrom(address _from, address _to, uint256 _value) returns (bool success);
-	
-	function approve(address _spender, uint256 _value) returns (bool success);
 
-	function allowance(address _owner, address _spender) constant returns (uint256 remaining);
+	function totalSupply() constant returns ( uint256 supply );
 	
-	event Transfer(address indexed _from, address indexed _to, uint256 _value);
+	function balanceOf( address _owner ) constant returns ( uint256 balance );
+	
+	function transfer( address _to, uint256 _value ) returns ( bool success );
+	
+	function transferFrom( address _from, address _to, uint256 _value ) returns ( bool success );
+	
+	function approve( address _spender, uint256 _value ) returns ( bool success );
 
-	event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+	function allowance( address _owner, address _spender ) constant returns ( uint256 remaining );
+	
+	event Transfer( address indexed _from, address indexed _to, uint256 _value );
+
+	event Approval( address indexed _owner, address indexed _spender, uint256 _value );
 }
 
 contract Exchange is SafeMath {
 
     mapping( address => mapping( address => uint )) public tokens;
     mapping( address => mapping( bytes32 => bool )) public orders;
-    mapping (address => mapping (bytes32 => uint)) public orderFills;
+    mapping(address => mapping( bytes32 => uint )) public orderFills;
 
     event Deposit( address token, address user, uint amount, uint balance );
     event Withdraw( address token, address user, uint amount, uint balance );
-
     event Order( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock );
     event OrderCancel( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock );
-    // Trade(user, msg.sender, tokenBuy, tokenSell, amountBuy, amountSell * quantityBuy / amountSell);
-    event Trade(address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell);
-    
-    //event OrderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, address user, uint endBlock, uint startBlock );
+    event Trade( address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell );
 
     function assertQuantity( uint amount ) private {
 
@@ -72,9 +68,9 @@ contract Exchange is SafeMath {
 		}
 	}
 
-	/*function assertNumberBlock(uint endBLock) private { 
+	/*function assertNumberBlock( uint endBLock ) private { 
 		
-		if (block.number <= endBlock)
+		if ( block.number <= endBlock )
 			assert( false );
 	}*/
 	
@@ -129,12 +125,12 @@ contract Exchange is SafeMath {
 		Order( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
 	}
 
-	function 	orderCancel(address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock) {
+	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock ) {
 		bytes32 hash;
 
 		assertQuantity( amountBuy );
 		assertQuantity( amountSell );
-		hash = sha256(this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock);
+		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
 		orders[msg.sender][hash] = false;
 		OrderCancel( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
 	}
