@@ -65,13 +65,6 @@ contract Exchange is SafeMath {
 		}
 	}
 
-	/*function assertNumberBlock( uint endBLock ) private { 
-		
-		if ( block.number <= endBlock )
-			assert( false );
-	}*/
-	
-
     function 	depositEth() payable {
 		
     	assertQuantity( msg.value );
