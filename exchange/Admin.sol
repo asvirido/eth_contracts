@@ -6,7 +6,6 @@ contract Admin {
 	address public	_feeAccount;
 	uint public		_feeMake; //percentage times (1 ether)
 	uint public		_feeTake; //percentage times (1 ether)
-	uint public		_feeRebate; //percentage times (1 ether)
 
 	function Admin( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) public {
 		_admin = admin;
@@ -37,9 +36,5 @@ contract Admin {
 
 	function setFeeTake( uint feeTake ) assertAdmin public {
 		_feeTake = feeTake;
-	}
-
-	function setFeeRebate( uint feeRebate ) assertAdmin public {
-		_feeRebate = feeRebate;
 	}
 }

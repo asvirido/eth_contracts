@@ -2,29 +2,29 @@ pragma solidity ^0.4.16;
 
 contract SafeMath {
 
-    function safeMul( uint a, uint b ) internal returns ( uint ) {
+	function safeMul( uint a, uint b ) internal returns ( uint ) {
 		
 		uint c;
 		
 		c = a * b;
-        assert( a == 0 || c / a == b );
-        return c;
-    }
-    
-    function safeSub( uint a, uint b ) internal returns ( uint ) {
+		assert( a == 0 || c / a == b );
+		return c;
+	}
+
+	function safeSub( uint a, uint b ) internal returns ( uint ) {
 		
 		assert( b <= a );
 		return a - b;
-    }
+	}
 
-    function safeAdd( uint a, uint b ) internal returns ( uint ) {
+	function safeAdd( uint a, uint b ) internal returns ( uint ) {
 		
 		uint c;
 	
 		c = a + b;
-        assert( c >= a && c >= b );
-        return c;
-    }
+		assert( c >= a && c >= b );
+		return c;
+	}
 }
 
 contract Token {
@@ -46,6 +46,54 @@ contract Token {
 	event Approval( address indexed _owner, address indexed _spender, uint256 _value );
 }
 
+contract Admin {
+
+	address public	admin;
+	address public	feeAccount;
+	uint 	public	feeMake; //percentage times (1 ether)
+	uint 	public	feeTake; //percentage times (1 ether)
+	uint 	public 	sizeList;
+
+	mapping (uint => address) public listFeeAccount;
+
+	function Admin( address _admin, address _feeAccount, uint _feeMake, uint _feeTake) public {
+		admin = _admin;
+		feeAccount = _feeAccount;
+		feeMake = _feeMake;
+		feeTake = _feeTake;
+		sizeList =  0;
+	}
+
+	modifier assertAdmin() {
+		if ( msg.sender != admin ) {
+			require( false );
+		}
+		_;
+	}
+
+	function setAdmin( address _admin ) assertAdmin public {
+		admin = _admin;
+	}
+
+	function setFeeAccount( address _feeAccount ) assertAdmin public {
+		feeAccount = _feeAccount;
+	}
+
+	function  setFeeMake( uint _feeMake ) assertAdmin public {
+		feeMake = _feeMake;
+	}
+
+	function setFeeTake( uint _feeTake ) assertAdmin public {
+		feeTake = _feeTake;
+	}
+
+	function addNewFeeAccounts(address newAccount) assertAdmin public {
+		listFeeAccount[sizeList] = newAccount;
+		sizeList += 1;
+	}
+	
+}
+
 contract Exchange is SafeMath {
 
     mapping( address => mapping( address => uint )) public tokens;
@@ -54,8 +102,8 @@ contract Exchange is SafeMath {
 
     event Deposit( address token, address user, uint amount, uint balance );
     event Withdraw( address token, address user, uint amount, uint balance );
-    event Order( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock );
-    event OrderCancel( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock );
+    event Order( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint nonce );
+    event OrderCancel( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint nonce );
     event Trade( address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell );
 
     function assertQuantity( uint amount ) private {
@@ -72,12 +120,12 @@ contract Exchange is SafeMath {
 		}
 	}
 
-    function 	depositEth() payable {
+ 	function 	depositEth() payable {
 		
-    	assertQuantity( msg.value );
+ 		assertQuantity( msg.value );
 		tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
 		Deposit( 0, msg.sender, msg.value, tokens[0][msg.sender] );
-    }
+ 	}
 
     function 	withdrawEth( uint amount ) {
 		
@@ -110,41 +158,48 @@ contract Exchange is SafeMath {
 		tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount );
 	    Withdraw( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
+
+	// function 	withdrawFeeAccounts( address token ) {
+	// 	uint size = 0;
+	// }
 	
-	function 	order( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock ) {
+	function 	order( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint nonce ) {
 
 		bytes32 	hash;
 
 		assertQuantity( amountBuy );
 		assertQuantity( amountSell );
-		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
+		if (endBlock <= block.number) {
+			assert( false );
+		}
+		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, nonce );
 		orders[msg.sender][hash] = true;
-		Order( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
+		Order( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, nonce );
 	}
 
-	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock ) {
-		
+	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint nonce ) {
+
 		bytes32 hash;
 
 		assertQuantity( amountBuy );
 		assertQuantity( amountSell );
-		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
+		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, nonce );
 		orders[msg.sender][hash] = false;
-		OrderCancel( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
+		OrderCancel( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, nonce );
 	}
 
-	function 	trade( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint startBlock, address user, uint quantityBuy ) { 
+	function 	trade( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint endBlock, uint nonce, address user, uint quantityBuy ) { 
 
 		bytes32 	hash;
 
-		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, startBlock );
+		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, endBlock, nonce );
 		if ( orders[user][hash] == false )
 			assert( false );
 		else if ( block.number > endBlock )
 			assert( false );
 		else if ( safeAdd( orderFills[user][hash], quantityBuy) > amountBuy )
 			assert( false );
-		
+
 		tradeBalances( tokenBuy, tokenSell, amountBuy, amountSell, user, quantityBuy );
 		orderFills[user][hash] = safeAdd( orderFills[user][hash], quantityBuy );
 		Trade( msg.sender, user, tokenBuy, tokenSell, amountBuy, amountSell * quantityBuy / amountSell );
@@ -163,10 +218,9 @@ contract Exchange is SafeMath {
 		feeTakeXfer = safeMul( quantityBuy, feeTake ) / ( 1 ether );
 
 		tokens[tokenBuy][msg.sender] = safeSub( tokens[tokenBuy][msg.sender], safeAdd( quantityBuy, feeTakeXfer ) );
-
 		tokens[tokenBuy][user] = safeAdd( tokens[tokenBuy][user], safeSub( quantityBuy, feeMakeXfer) );
-		
 		tokens[tokenBuy][this] = safeAdd( tokens[tokenBuy][this], safeAdd( feeMakeXfer, feeTakeXfer ) );
+
 		tokens[tokenSell][user] = safeSub( tokens[tokenSell][user], safeMul( amountSell, quantityBuy ) / amountBuy );
 		tokens[tokenSell][msg.sender] = safeAdd( tokens[tokenSell][msg.sender], safeMul( amountSell, quantityBuy) / amountBuy );
 	}
