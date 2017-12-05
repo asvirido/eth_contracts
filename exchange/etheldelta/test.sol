@@ -53,7 +53,6 @@ contract Admin {
 	address public 	nextVersionAddress;
 	bool 	public	orderEnd;
 	// add variable version;
-	// uint 	public	feeMake; //percentage times (1 ether)
 	uint 	public	feeTake; //percentage times (1 ether)
 
 	function Admin( address _admin, address _feeAccount, uint _feeMake, uint _feeTake) public {
@@ -92,13 +91,6 @@ contract Admin {
 		
 		feeAccount = _feeAccount;
 	}
-
-	// function  setFeeMake( uint _feeMake ) assertAdmin public {
-		
-	// 	if ( _feeMake > feeMake )
-	// 		assert ( false );
-	// 	feeMake = _feeMake;
-	// }
 
 	function setFeeTake( uint _feeTake ) assertAdmin public {
 		
