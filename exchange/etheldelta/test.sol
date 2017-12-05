@@ -27,6 +27,10 @@ contract SafeMath {
 	}
 }
 
+/*
+* Interface ERC20
+*/
+
 contract Token {
 
 	function totalSupply() public constant returns ( uint256 supply );
@@ -112,14 +116,14 @@ contract Exchange is SafeMath, Admin {
     event OrderCancel( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce );
     event Trade( address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell );
 
-    function assertQuantity( uint amount ) private {
+    function assertQuantity( uint amount ) pure private {
         
 		if ( amount == 0 ) {
             assert( false );
         }
     }
 
-	function assertToken( address token ) private { 
+	function assertToken( address token ) pure private { 
 		
 		if ( token == 0 ) {
 			assert( false );
@@ -133,13 +137,11 @@ contract Exchange is SafeMath, Admin {
 		Deposit( 0, msg.sender, msg.value, tokens[0][msg.sender] );
  	}
 
-    function 	withdrawEth( uint amount ) public {
+	function 	withdrawEth( uint amount ) public {
 		
 		assertQuantity( amount );
-		if ( ! msg.sender.send(amount) ) {
-			assert( false );
-		}
 		tokens[0][msg.sender] = safeSub( tokens[0][msg.sender], amount );
+		msg.sender.transfer( amount );
 		Withdraw( 0, msg.sender, amount, tokens[0][msg.sender] );
 	}
 
@@ -147,10 +149,10 @@ contract Exchange is SafeMath, Admin {
 
 		assertToken( token );
 		assertQuantity( amount );
+		tokens[token][msg.sender] = safeAdd( tokens[token][msg.sender], amount );
 		if ( Token( token ).transferFrom( msg.sender, this, amount ) == false ) {
 			assert( false );
 		}
-		tokens[token][msg.sender] = safeAdd( tokens[token][msg.sender], amount );
 		Deposit( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
 
@@ -158,7 +160,7 @@ contract Exchange is SafeMath, Admin {
 		
 		assertToken( token );
 		assertQuantity( amount );
-		if ( Token( token ).transfer( msg.sender, amount ) == false ) {
+		if ( Token( token ).transferFrom( this, msg.sender, amount ) == false ) {
 			assert( false );
 		}
 		tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount );
