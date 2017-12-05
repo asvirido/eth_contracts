@@ -1,8 +1,8 @@
-pragma solidity ^0.4.16;
+pragma solidity ^0.4.19;
 
 contract SafeMath {
 
-	function safeMul( uint a, uint b ) internal returns ( uint ) {
+	function safeMul( uint a, uint b ) internal pure returns ( uint ) {
 		
 		uint c;
 		
@@ -11,13 +11,13 @@ contract SafeMath {
 		return c;
 	}
 
-	function safeSub( uint a, uint b ) internal returns ( uint ) {
+	function safeSub( uint a, uint b ) internal pure returns ( uint ) {
 		
 		assert( b <= a );
 		return a - b;
 	}
 
-	function safeAdd( uint a, uint b ) internal returns ( uint ) {
+	function safeAdd( uint a, uint b ) internal pure returns ( uint ) {
 		
 		uint c;
 	
@@ -55,7 +55,7 @@ contract Admin {
 	// add variable version;
 	uint 	public	feeTake; //percentage times (1 ether)
 
-	function Admin( address _admin, address _feeAccount, uint _feeTake) public {
+	function Admin( address _admin, address _feeAccount, uint _feeMake, uint _feeTake) public {
 		
 		admin = _admin;
 		feeAccount = _feeAccount;
@@ -136,7 +136,7 @@ contract Exchange is SafeMath, Admin {
     function 	withdrawEth( uint amount ) public {
 		
 		assertQuantity( amount );
-		if ( msg.sender.call.value( amount )() == false ) {
+		if ( ! msg.sender.send(amount) ) {
 			assert( false );
 		}
 		tokens[0][msg.sender] = safeSub( tokens[0][msg.sender], amount );
