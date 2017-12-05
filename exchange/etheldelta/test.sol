@@ -55,7 +55,7 @@ contract Admin {
 	// add variable version;
 	uint 	public	feeTake; //percentage times (1 ether)
 
-	function Admin( address _admin, address _feeAccount, uint _feeMake, uint _feeTake) public {
+	function Admin( address _admin, address _feeAccount, uint _feeTake) public {
 		
 		admin = _admin;
 		feeAccount = _feeAccount;
@@ -66,7 +66,7 @@ contract Admin {
 	modifier assertAdmin() {
 		
 		if ( msg.sender != admin ) {
-			require( false );
+			assert( false );
 		}
 		_;
 	}
