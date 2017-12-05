@@ -82,7 +82,7 @@ contract Admin {
 	}
 
 	function setVersion(string _version) assertAdmin public {
-		version = _version		
+		version = _version;	
 	}
 	
 
@@ -179,6 +179,7 @@ contract Exchange is SafeMath, Admin {
 
 		assertQuantity( amountBuy );
 		assertQuantity( amountSell );
+
 		if ( orderEnd == false )
 			assert( false );
 
