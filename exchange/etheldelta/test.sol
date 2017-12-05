@@ -59,14 +59,14 @@ contract Admin {
 	string  public 	version;
 	uint 	public	feeTake; //percentage times (1 ether)
 
-	function Admin( address _admin, address _feeAccount, uint _feeTake, string _version) public {
+	/*function Admin( address _admin, address _feeAccount, uint _feeTake, string _version) public {
 		
 		admin = _admin;
 		feeAccount = _feeAccount;
 		feeTake = _feeTake;
 		orderEnd = true;
 		version = _version;
-	}
+	}*/
 
 	modifier assertAdmin() {
 		
@@ -122,6 +122,14 @@ contract Exchange is SafeMath, Admin {
     event OrderCancel( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce );
     event Trade( address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell );
 
+    function Exchange( address _admin, address _feeAccount, uint _feeTake, string _version) public {
+		
+		admin = _admin;
+		feeAccount = _feeAccount;
+		feeTake = _feeTake;
+		orderEnd = true;
+		version = _version;
+}
     function assertQuantity( uint amount ) pure private {
         
 		if ( amount == 0 ) {
