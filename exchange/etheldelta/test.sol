@@ -180,7 +180,7 @@ contract Exchange is SafeMath, Admin {
 		Order( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
 	}
 
-	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce ) {
+	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce ) public {
 
 		bytes32 hash;
 
@@ -191,7 +191,7 @@ contract Exchange is SafeMath, Admin {
 		OrderCancel( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
 	}
 
-	function 	trade( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce, address user, uint quantityBuy ) { 
+	function 	trade( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce, address user, uint quantityBuy ) public { 
 
 		bytes32 	hash;
 
