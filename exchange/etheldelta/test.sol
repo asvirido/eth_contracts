@@ -56,15 +56,16 @@ contract Admin {
 	address public	feeAccount;
 	address public 	nextVersionAddress;
 	bool 	public	orderEnd;
-	// add variable version;
+	string  public 	version;
 	uint 	public	feeTake; //percentage times (1 ether)
 
-	function Admin( address _admin, address _feeAccount, uint _feeTake) public {
+	function Admin( address _admin, address _feeAccount, uint _feeTake, string _version) public {
 		
 		admin = _admin;
 		feeAccount = _feeAccount;
 		feeTake = _feeTake;
 		orderEnd = true;
+		version = _version;
 	}
 
 	modifier assertAdmin() {
@@ -79,6 +80,11 @@ contract Admin {
 		
 		admin = _admin;
 	}
+
+	function setVersion(string _version) assertAdmin public {
+		version = _version		
+	}
+	
 
 	function setNextVersionAddress(address _nextVersionAddress) assertAdmin public{
 		
