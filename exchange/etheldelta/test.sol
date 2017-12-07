@@ -2,7 +2,7 @@ pragma solidity ^0.4.19;
 
 contract SafeMath {
 
-	function safeMul( uint a, uint b ) internal pure returns ( uint ) {
+	function safeMul( uint a, uint b ) internal returns ( uint ) {
 		
 		uint 	c;
 		
@@ -11,13 +11,13 @@ contract SafeMath {
 		return c;
 	}
 
-	function safeSub( uint a, uint b ) internal pure returns ( uint ) {
+	function safeSub( uint a, uint b ) internal returns ( uint ) {
 		
 		assert( b <= a );
 		return a - b;
 	}
 
-	function safeAdd( uint a, uint b ) internal pure returns ( uint ) {
+	function safeAdd( uint a, uint b ) internal returns ( uint ) {
 		
 		uint 	c;
 	
@@ -122,14 +122,14 @@ contract Exchange is SafeMath, Admin {
 		orderEnd = true;
 		version = _version;
 }
-    function assertQuantity( uint amount ) pure private {
+    function assertQuantity( uint amount ) private {
         
 		if ( amount == 0 ) {
             assert( false );
         }
     }
 
-	function assertToken( address token ) pure private { 
+	function assertToken( address token ) private { 
 		
 		if ( token == 0 ) {
 			assert( false );
