@@ -4,7 +4,7 @@ contract SafeMath {
 
 	function safeMul( uint a, uint b ) internal pure returns ( uint ) {
 		
-		uint c;
+		uint 	c;
 		
 		c = a * b;
 		assert( a == 0 || c / a == b );
@@ -19,7 +19,7 @@ contract SafeMath {
 
 	function safeAdd( uint a, uint b ) internal pure returns ( uint ) {
 		
-		uint c;
+		uint 	c;
 	
 		c = a + b;
 		assert( c >= a && c >= b );
@@ -58,15 +58,6 @@ contract Admin {
 	bool 	public	orderEnd;
 	string  public 	version;
 	uint 	public	feeTake; //percentage times (1 ether)
-
-	/*function Admin( address _admin, address _feeAccount, uint _feeTake, string _version) public {
-		
-		admin = _admin;
-		feeAccount = _feeAccount;
-		feeTake = _feeTake;
-		orderEnd = true;
-		version = _version;
-	}*/
 
 	modifier assertAdmin() {
 		
@@ -114,6 +105,7 @@ contract Exchange is SafeMath, Admin {
 
     mapping( address => mapping( address => uint )) public tokens;
     mapping( address => mapping( bytes32 => bool )) public orders;
+    mapping( address => mapping( address => uint )) public ordersBalance;
     mapping( address => mapping( bytes32 => uint )) public orderFills;
 
     event Deposit( address token, address user, uint amount, uint balance );
@@ -190,20 +182,32 @@ contract Exchange is SafeMath, Admin {
 
 		if ( orderEnd == false )
 			assert( false );
-
+		if ( tokens[tokenSell][msg.sender] < amountSell ) // new
+			assert( false );
+		
 		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		
 		orders[msg.sender][hash] = true;
+		tokens[tokenSell][msg.sender] = safeSub( tokens[tokenSell][msg.sender], amountSell ); // new
+		ordersBalance[hash][msg.sender] = amountSell;// new
+
 		Order( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
 	}
 
 	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce ) public {
 
-		bytes32 hash;
+		bytes32 	hash;
 
 		assertQuantity( amountBuy );
 		assertQuantity( amountSell );
+		
 		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		
 		orders[msg.sender][hash] = false;
+
+		tokens[tokenSell][msg.sender] = safeAdd( tokens[tokenSell][msg.sender], ordersBalance[hash][msg.sender]); // new
+		ordersBalance[hash][msg.sender] = 0; // new
+
 		OrderCancel( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
 	}
 
@@ -218,22 +222,25 @@ contract Exchange is SafeMath, Admin {
 		else if ( safeAdd( orderFills[user][hash], quantityBuy) > amountBuy )
 			assert( false );
 
-		tradeBalances( tokenBuy, tokenSell, amountBuy, amountSell, user, quantityBuy );
-		orderFills[user][hash] = safeAdd( orderFills[user][hash], quantityBuy );
+		tradeBalances( tokenBuy, tokenSell, amountBuy, amountSell, user, quantityBuy, hash);
+		orderFills[user][hash] = safeAdd( orderFills[user][hash], quantityBuy );		
 		Trade( msg.sender, user, tokenBuy, tokenSell, amountBuy, amountSell * quantityBuy / amountSell );
 	}
 
-	function tradeBalances( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, address user, uint quantityBuy ) private {
+	function tradeBalances( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, address makeMan, uint quantityBuy, bytes32 hash) private {
 
-		uint 	feeTakeXfer;
+		uint 		feeTakeXfer;
+		address 	takeMan;
 
+		takeMan = msg.sender;
 		feeTakeXfer = safeMul( quantityBuy, feeTake ) / ( 1 ether );
 
-		tokens[tokenBuy][msg.sender] = safeSub( tokens[tokenBuy][msg.sender], safeAdd( quantityBuy, feeTakeXfer ) );
-		tokens[tokenBuy][user] = safeAdd( tokens[tokenBuy][user], quantityBuy );
+		tokens[tokenBuy][takeMan] = safeSub( tokens[tokenBuy][takeMan], safeAdd( quantityBuy, feeTakeXfer ) );
+		tokens[tokenBuy][makeMan] = safeAdd( tokens[tokenBuy][makeMan], quantityBuy );
+		
 		tokens[tokenBuy][feeAccount] = safeAdd( tokens[tokenBuy][feeAccount], feeTakeXfer );
 
-		tokens[tokenSell][user] = safeSub( tokens[tokenSell][user], safeMul( amountSell, quantityBuy ) / amountBuy );
-		tokens[tokenSell][msg.sender] = safeAdd( tokens[tokenSell][msg.sender], safeMul( amountSell, quantityBuy) / amountBuy );
+		ordersBalance[hash][makeMan] = safeSub( ordersBalance[hash][makeMan], safeMul( amountSell, quantityBuy ) / amountBuy ); // new
+		tokens[tokenSell][takeMan] = safeAdd( tokens[tokenSell][takeMan], safeMul( amountSell, quantityBuy) / amountBuy );
 	}
 }
