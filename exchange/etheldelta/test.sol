@@ -105,14 +105,14 @@ contract Exchange is SafeMath, Admin {
 
     mapping( address => mapping( address => uint )) public tokens;
     mapping( address => mapping( bytes32 => bool )) public orders;
-    mapping( address => mapping( address => uint )) public ordersBalance;
+    mapping( bytes32 => mapping( address => uint )) public ordersBalance;
     mapping( address => mapping( bytes32 => uint )) public orderFills;
 
     event Deposit( address token, address user, uint amount, uint balance );
     event Withdraw( address token, address user, uint amount, uint balance );
-    event Order( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce );
-    event OrderCancel( address user, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce );
-    event Trade( address userBuy, address userSell, address tokenBuy, address tokenSell, uint amountBuy, uint amountSell );
+    event Order( address user, address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce );
+    event OrderCancel( address user, address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce );
+    event Trade( address userBuy, address userSell, address tokenTake, address tokenMake, uint amountTake, uint amountMake );
 
     function Exchange( address _admin, address _feeAccount, uint _feeTake, string _version) public {
 		
@@ -166,81 +166,81 @@ contract Exchange is SafeMath, Admin {
 		
 		assertToken( token );
 		assertQuantity( amount );
-		if ( Token( token ).transferFrom( this, msg.sender, amount ) == false ) {
+		if ( Token( token ).transfer( msg.sender, amount ) == false ) {
 			assert( false );
 		}
 		tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount );
 	    Withdraw( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
 	
-	function 	order( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce ) public {
+	function 	order( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce ) public {
 
 		bytes32 	hash;
 
-		assertQuantity( amountBuy );
-		assertQuantity( amountSell );
+		assertQuantity( amountTake );
+		assertQuantity( amountMake );
 
 		if ( orderEnd == false )
 			assert( false );
-		if ( tokens[tokenSell][msg.sender] < amountSell ) // new
+		if ( tokens[tokenMake][msg.sender] < amountMake )
 			assert( false );
 		
-		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
 		
 		orders[msg.sender][hash] = true;
-		tokens[tokenSell][msg.sender] = safeSub( tokens[tokenSell][msg.sender], amountSell ); // new
-		ordersBalance[hash][msg.sender] = amountSell;// new
+		tokens[tokenMake][msg.sender] = safeSub( tokens[tokenMake][msg.sender], amountMake );
+		ordersBalance[hash][msg.sender] = amountMake;
 
-		Order( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		Order( msg.sender, tokenTake, tokenMake, amountTake, amountMake, nonce );
 	}
 
-	function 	orderCancel( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce ) public {
+	function 	orderCancel( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce ) public {
 
 		bytes32 	hash;
 
-		assertQuantity( amountBuy );
-		assertQuantity( amountSell );
+		assertQuantity( amountTake );
+		assertQuantity( amountMake );
 		
-		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
 		
 		orders[msg.sender][hash] = false;
 
-		tokens[tokenSell][msg.sender] = safeAdd( tokens[tokenSell][msg.sender], ordersBalance[hash][msg.sender]); // new
-		ordersBalance[hash][msg.sender] = 0; // new
+		tokens[tokenMake][msg.sender] = safeAdd( tokens[tokenMake][msg.sender], ordersBalance[hash][msg.sender]);
+		ordersBalance[hash][msg.sender] = 0;
 
-		OrderCancel( msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		OrderCancel( msg.sender, tokenTake, tokenMake, amountTake, amountMake, nonce );
 	}
 
-	function 	trade( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, uint nonce, address user, uint quantityBuy ) public { 
+	function 	trade( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce, address user, uint quantityTake ) public { 
 
 		bytes32 	hash;
 
-		hash = sha256( this, tokenBuy, tokenSell, amountBuy, amountSell, nonce );
+		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
 		
 		if ( orders[user][hash] == false )
 			assert( false );
-		else if ( safeAdd( orderFills[user][hash], quantityBuy) > amountBuy )
+		else if ( safeAdd( orderFills[user][hash], quantityTake) > amountTake )
 			assert( false );
 
-		tradeBalances( tokenBuy, tokenSell, amountBuy, amountSell, user, quantityBuy, hash);
-		orderFills[user][hash] = safeAdd( orderFills[user][hash], quantityBuy );		
-		Trade( msg.sender, user, tokenBuy, tokenSell, amountBuy, amountSell * quantityBuy / amountSell );
+		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, user, quantityTake, hash);
+		orderFills[user][hash] = safeAdd( orderFills[user][hash], quantityTake );		
+		Trade( msg.sender, user, tokenTake, tokenMake, amountTake, amountMake * quantityTake / amountMake );
 	}
 
-	function tradeBalances( address tokenBuy, address tokenSell, uint amountBuy, uint amountSell, address makeMan, uint quantityBuy, bytes32 hash) private {
+	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeMan, uint quantityTake, bytes32 hash) private {
 
 		uint 		feeTakeXfer;
 		address 	takeMan;
 
 		takeMan = msg.sender;
-		feeTakeXfer = safeMul( quantityBuy, feeTake ) / ( 1 ether );
+		feeTakeXfer = safeMul( quantityTake, feeTake ) / ( 1 ether );
 
-		tokens[tokenBuy][takeMan] = safeSub( tokens[tokenBuy][takeMan], safeAdd( quantityBuy, feeTakeXfer ) );
-		tokens[tokenBuy][makeMan] = safeAdd( tokens[tokenBuy][makeMan], quantityBuy );
+		tokens[tokenTake][takeMan] = safeSub( tokens[tokenTake][takeMan], safeAdd( quantityTake, feeTakeXfer ) );
+		tokens[tokenTake][makeMan] = safeAdd( tokens[tokenTake][makeMan], quantityTake );
 		
-		tokens[tokenBuy][feeAccount] = safeAdd( tokens[tokenBuy][feeAccount], feeTakeXfer );
+		tokens[tokenTake][feeAccount] = safeAdd( tokens[tokenTake][feeAccount], feeTakeXfer );
 
-		ordersBalance[hash][makeMan] = safeSub( ordersBalance[hash][makeMan], safeMul( amountSell, quantityBuy ) / amountBuy ); // new
-		tokens[tokenSell][takeMan] = safeAdd( tokens[tokenSell][takeMan], safeMul( amountSell, quantityBuy) / amountBuy );
+		ordersBalance[hash][makeMan] = safeSub( ordersBalance[hash][makeMan], safeMul( amountMake, quantityTake ) / amountTake );
+		tokens[tokenMake][takeMan] = safeAdd( tokens[tokenMake][takeMan], safeMul( amountMake, quantityTake) / amountTake );
 	}
 }
