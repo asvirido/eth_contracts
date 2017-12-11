@@ -103,31 +103,32 @@ contract Admin {
 
 contract Exchange is SafeMath, Admin {
 
-    mapping( address => mapping( address => uint )) public tokens;
-    mapping( address => mapping( bytes32 => bool )) public orders;
-    mapping( bytes32 => mapping( address => uint )) public ordersBalance;
-    mapping( address => mapping( bytes32 => uint )) public orderFills;
+	mapping( address => mapping( address => uint )) public tokens;
+	mapping( address => mapping( bytes32 => bool )) public orders;
+	mapping( bytes32 => mapping( address => uint )) public ordersBalance;
+	mapping( address => mapping( bytes32 => uint )) public orderFills;
 
-    event Deposit( address token, address user, uint amount, uint balance );
-    event Withdraw( address token, address user, uint amount, uint balance );
-    event Order( address user, address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce );
-    event OrderCancel( address user, address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce );
-    event Trade( address userBuy, address userSell, address tokenTake, address tokenMake, uint amountTake, uint amountMake );
-
-    function Exchange( address _admin, address _feeAccount, uint _feeTake, string _version) public {
+	event Deposit( address token, address user, uint amount, uint balance );
+	event Withdraw( address token, address user, uint amount, uint balance );
+	event Order( address user, address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce );
+	event OrderCancel( address user, address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce );
+	event Trade( address makeAddress, address tokenMake, uint amountGiveMake, address takeAddress, address tokenTake, uint quantityTake, uint feeTakeXfer);
+	
+	function Exchange( address _admin, address _feeAccount, uint _feeTake, string _version) public {
 		
 		admin = _admin;
 		feeAccount = _feeAccount;
 		feeTake = _feeTake;
 		orderEnd = true;
 		version = _version;
-}
-    function assertQuantity( uint amount ) private {
-        
+	}
+
+	function assertQuantity( uint amount ) private {
+
 		if ( amount == 0 ) {
-            assert( false );
-        }
-    }
+			assert( false );
+		}
+	}
 
 	function assertToken( address token ) private { 
 		
@@ -191,7 +192,7 @@ contract Exchange is SafeMath, Admin {
 		tokens[tokenMake][msg.sender] = safeSub( tokens[tokenMake][msg.sender], amountMake );
 		ordersBalance[hash][msg.sender] = amountMake;
 
-		Order( msg.sender, tokenTake, tokenMake, amountTake, amountMake, nonce );
+		Order( msg.sender, tokenTake, amountTake, tokenMake, amountMake, nonce );
 	}
 
 	function 	orderCancel( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce ) public {
@@ -200,47 +201,47 @@ contract Exchange is SafeMath, Admin {
 
 		assertQuantity( amountTake );
 		assertQuantity( amountMake );
-		
-		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
-		
-		orders[msg.sender][hash] = false;
 
+		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
+		orders[msg.sender][hash] = false;
+		
 		tokens[tokenMake][msg.sender] = safeAdd( tokens[tokenMake][msg.sender], ordersBalance[hash][msg.sender]);
 		ordersBalance[hash][msg.sender] = 0;
-
-		OrderCancel( msg.sender, tokenTake, tokenMake, amountTake, amountMake, nonce );
+		OrderCancel( msg.sender, tokenTake, amountTake, tokenMake, amountMake, nonce );
 	}
 
-	function 	trade( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce, address user, uint quantityTake ) public { 
+	function 	trade( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce, address makeAddress, uint quantityTake ) public { 
 
 		bytes32 	hash;
 
 		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
-		
-		if ( orders[user][hash] == false )
-			assert( false );
-		else if ( safeAdd( orderFills[user][hash], quantityTake) > amountTake )
-			assert( false );
 
-		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, user, quantityTake, hash);
-		orderFills[user][hash] = safeAdd( orderFills[user][hash], quantityTake );		
-		Trade( msg.sender, user, tokenTake, tokenMake, amountTake, amountMake * quantityTake / amountMake );
+		if ( orders[makeAddress][hash] == false )
+			assert( false );
+		else if ( safeAdd( orderFills[makeAddress][hash], quantityTake) > amountTake )
+			assert( false );
+		
+		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash);
+		orderFills[makeAddress][hash] = safeAdd( orderFills[makeAddress][hash], quantityTake );		
 	}
 
-	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeMan, uint quantityTake, bytes32 hash) private {
+	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash) private {
 
 		uint 		feeTakeXfer;
-		address 	takeMan;
+		address 	takeAddress;
+		uint 		amountGiveMake;
 
-		takeMan = msg.sender;
+		takeAddress = msg.sender;
 		feeTakeXfer = safeMul( quantityTake, feeTake ) / ( 1 ether );
+		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 
-		tokens[tokenTake][takeMan] = safeSub( tokens[tokenTake][takeMan], safeAdd( quantityTake, feeTakeXfer ) );
-		tokens[tokenTake][makeMan] = safeAdd( tokens[tokenTake][makeMan], quantityTake );
-		
+		tokens[tokenTake][takeAddress] = safeSub( tokens[tokenTake][takeAddress], safeAdd( quantityTake, feeTakeXfer ) );
+		tokens[tokenTake][makeAddress] = safeAdd( tokens[tokenTake][makeAddress], quantityTake );
 		tokens[tokenTake][feeAccount] = safeAdd( tokens[tokenTake][feeAccount], feeTakeXfer );
 
-		ordersBalance[hash][makeMan] = safeSub( ordersBalance[hash][makeMan], safeMul( amountMake, quantityTake ) / amountTake );
-		tokens[tokenMake][takeMan] = safeAdd( tokens[tokenMake][takeMan], safeMul( amountMake, quantityTake) / amountTake );
+		ordersBalance[hash][makeAddress] = safeSub( ordersBalance[hash][makeAddress], amountGiveMake );
+		tokens[tokenMake][takeAddress] = safeAdd( tokens[tokenMake][takeAddress], amountGiveMake );
+
+		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer);
 	}
 }
