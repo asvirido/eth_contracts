@@ -111,8 +111,8 @@ contract Exchange is SafeMath, Admin {
 	event Withdraw( address token, address user, uint amount, uint balance );
 	event Order( address user, address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce );
 	event OrderCancel( address user, address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce );
-	event Trade( address makeAddress, address tokenMake, uint amountGiveMake, address takeAddress, address tokenTake, uint quantityTake, uint feeTakeXfer);
-	
+	event Trade( address makeAddress, address tokenMake, uint amountGiveMake, address takeAddress, address tokenTake, uint quantityTake, uint feeTakeXfer, uint balanceOrder );
+
 	function Exchange( address _admin, address _feeAccount, uint _feeTake, string _version) public {
 		
 		admin = _admin;
@@ -145,7 +145,7 @@ contract Exchange is SafeMath, Admin {
 		if ( Token( token ).transferFrom( msg.sender, this, amount ) == false ) {
 			assert( false );
 		}
-		Deposit( token, msg.sender, amount, tokens[token][msg.sender] );
+		Deposit( token, msg.sender, amount , tokens[token][msg.sender] );
 	}
 
 	function 	withdrawToken( address token, uint amount ) public {
@@ -226,7 +226,7 @@ contract Exchange is SafeMath, Admin {
 		ordersBalance[hash][makeAddress] = safeSub( ordersBalance[hash][makeAddress], amountGiveMake );
 		tokens[tokenMake][takeAddress] = safeAdd( tokens[tokenMake][takeAddress], amountGiveMake );
 
-		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer );
+		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer, ordersBalance[hash][makeAddress] );
 	}
 
 	function assertQuantity( uint amount ) private {
