@@ -244,7 +244,7 @@ contract Exchange is SafeMath, Admin {
 	}
 
 
-	function assertOrders(address makeAddress, bytes32 hash) private {
+	function assertOrders( address makeAddress, bytes32 hash ) private {
 		
 		if ( orders[makeAddress][hash] == false ) {
 			assert( false );
