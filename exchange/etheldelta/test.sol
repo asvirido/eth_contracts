@@ -204,7 +204,7 @@ contract Exchange is SafeMath, Admin {
 
 		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
 		orders[msg.sender][hash] = false;
-		
+
 		tokens[tokenMake][msg.sender] = safeAdd( tokens[tokenMake][msg.sender], ordersBalance[hash][msg.sender]);
 		ordersBalance[hash][msg.sender] = 0;
 		OrderCancel( msg.sender, tokenTake, amountTake, tokenMake, amountMake, nonce );
@@ -213,14 +213,17 @@ contract Exchange is SafeMath, Admin {
 	function 	trade( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce, address makeAddress, uint quantityTake ) public { 
 
 		bytes32 	hash;
+		uint 		amountGiveMake;
 
+		assertQuantity( quantityTake );
 		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
+		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 
 		if ( orders[makeAddress][hash] == false )
 			assert( false );
-		else if ( safeAdd( orderFills[makeAddress][hash], quantityTake) > amountTake )
+		else if ( safeSub( ordersBalance[hash][makeAddress], amountGiveMake ) )
+		//else if ( safeAdd( orderFills[makeAddress][hash], quantityTake) > amountTake )
 			assert( false );
-		
 		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash);
 		orderFills[makeAddress][hash] = safeAdd( orderFills[makeAddress][hash], quantityTake );		
 	}
@@ -233,7 +236,6 @@ contract Exchange is SafeMath, Admin {
 
 		takeAddress = msg.sender;
 		feeTakeXfer = safeMul( quantityTake, feeTake ) / ( 1 ether );
-		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 
 		tokens[tokenTake][takeAddress] = safeSub( tokens[tokenTake][takeAddress], safeAdd( quantityTake, feeTakeXfer ) );
 		tokens[tokenTake][makeAddress] = safeAdd( tokens[tokenTake][makeAddress], quantityTake );
