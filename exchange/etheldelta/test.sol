@@ -206,16 +206,18 @@ contract Exchange is SafeMath, Admin {
 		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 		assertCompareBalance ( amountGiveMake, ordersBalance[hash][makeAddress] );
 		
-		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash, amountGiveMake);
+		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash);
 	}
 
-	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash, uint amountGiveMake) private {
+	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash) private {
 
 		uint 		feeTakeXfer;
 		address 	takeAddress;
+		uint 		amountGiveMake;
 
 		takeAddress = msg.sender;
 		feeTakeXfer = safeMul( quantityTake, feeTake ) / ( 1 ether );
+		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 
 		tokens[tokenTake][takeAddress] = safeSub( tokens[tokenTake][takeAddress], safeAdd( quantityTake, feeTakeXfer ) );
 		tokens[tokenTake][makeAddress] = safeAdd( tokens[tokenTake][makeAddress], quantityTake );
