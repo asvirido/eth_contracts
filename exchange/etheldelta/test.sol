@@ -84,7 +84,7 @@ contract Admin {
 
 	function setOrderEnd() assertAdmin public {
 		
-		orderEnd = false;
+		orderEnd = true;
 	}
 
 	function setFeeAccount( address _feeAccount ) assertAdmin public {
@@ -106,7 +106,6 @@ contract Exchange is SafeMath, Admin {
 	mapping( address => mapping( address => uint )) public tokens;
 	mapping( address => mapping( bytes32 => bool )) public orders;
 	mapping( bytes32 => mapping( address => uint )) public ordersBalance;
-	mapping( address => mapping( bytes32 => uint )) public orderFills;
 
 	event Deposit( address token, address user, uint amount, uint balance );
 	event Withdraw( address token, address user, uint amount, uint balance );
@@ -119,22 +118,8 @@ contract Exchange is SafeMath, Admin {
 		admin = _admin;
 		feeAccount = _feeAccount;
 		feeTake = _feeTake;
-		orderEnd = true;
+		orderEnd = false;
 		version = _version;
-	}
-
-	function assertQuantity( uint amount ) private {
-
-		if ( amount == 0 ) {
-			assert( false );
-		}
-	}
-
-	function assertToken( address token ) private { 
-		
-		if ( token == 0 ) {
-			assert( false );
-		}
 	}
 
  	function 	depositEth() payable public {
@@ -174,16 +159,14 @@ contract Exchange is SafeMath, Admin {
 	    Withdraw( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
 	
-	function 	order( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce ) public {
+	function 	order( address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce ) public {
 
 		bytes32 	hash;
 
 		assertQuantity( amountTake );
 		assertQuantity( amountMake );
-
-		if ( orderEnd == false )
-			assert( false );
-		if ( tokens[tokenMake][msg.sender] < amountMake )
+		assertCompareBalance( amountMake, tokens[tokenMake][msg.sender] );
+		if ( orderEnd == true )
 			assert( false );
 		
 		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
@@ -195,7 +178,7 @@ contract Exchange is SafeMath, Admin {
 		Order( msg.sender, tokenTake, amountTake, tokenMake, amountMake, nonce );
 	}
 
-	function 	orderCancel( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce ) public {
+	function 	orderCancel( address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce ) public {
 
 		bytes32 	hash;
 
@@ -216,23 +199,20 @@ contract Exchange is SafeMath, Admin {
 		uint 		amountGiveMake;
 
 		assertQuantity( quantityTake );
-		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
-		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 
-		if ( orders[makeAddress][hash] == false )
-			assert( false );
-		else if ( safeSub( ordersBalance[hash][makeAddress], amountGiveMake ) )
-		//else if ( safeAdd( orderFills[makeAddress][hash], quantityTake) > amountTake )
-			assert( false );
-		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash);
-		orderFills[makeAddress][hash] = safeAdd( orderFills[makeAddress][hash], quantityTake );		
+		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
+		assertOrders( makeAddress, hash );
+		
+		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
+		assertCompareBalance ( amountGiveMake, ordersBalance[hash][makeAddress] );
+		
+		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash, amountGiveMake);
 	}
 
-	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash) private {
+	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash, uint amountGiveMake) private {
 
 		uint 		feeTakeXfer;
 		address 	takeAddress;
-		uint 		amountGiveMake;
 
 		takeAddress = msg.sender;
 		feeTakeXfer = safeMul( quantityTake, feeTake ) / ( 1 ether );
@@ -244,6 +224,35 @@ contract Exchange is SafeMath, Admin {
 		ordersBalance[hash][makeAddress] = safeSub( ordersBalance[hash][makeAddress], amountGiveMake );
 		tokens[tokenMake][takeAddress] = safeAdd( tokens[tokenMake][takeAddress], amountGiveMake );
 
-		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer);
+		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer );
+	}
+
+	function assertQuantity( uint amount ) private {
+
+		if ( amount == 0 ) {
+			assert( false );
+		}
+	}
+
+	function assertToken( address token ) private { 
+		
+		if ( token == 0 ) {
+			assert( false );
+		}
+	}
+
+
+	function assertOrders(address makeAddress, bytes32 hash) private {
+		
+		if ( orders[makeAddress][hash] == false ) {
+			assert( false );
+		}
+	}
+
+	function assertCompareBalance( uint a, uint b ) private {
+		
+		if ( a > b ) {
+			assert( false );
+		}
 	}
 }
