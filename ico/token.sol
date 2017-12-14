@@ -35,7 +35,7 @@ interface tokenRecipient{
 	function receiveApproval( address _from, uint256 _value, address _token, bytes _extraData ) public;
 }
 
-contract TokenERC20 {
+contract TokenERC20 is ERC20Interface {
 
 	string	public name;
 	string	public symbol;
@@ -123,7 +123,8 @@ contract TokenERC20 {
 	function 	approve( address _spender, uint256 _value ) public returns ( bool success ) {
 		
 		allowance[msg.sender][_spender] = _value;
-		
+
+		Approval( msg.sender, _spender, _value );
 		return true;
 	}
 

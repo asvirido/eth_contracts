@@ -106,14 +106,6 @@ contract DSMath {
     standard uint256 functions
      */
 
-    function add(uint256 x, uint256 y) constant internal returns (uint256 z) {
-        assert((z = x + y) >= x);
-    }
-
-    function sub(uint256 x, uint256 y) constant internal returns (uint256 z) {
-        assert((z = x - y) <= x);
-    }
-
     function mul(uint256 x, uint256 y) constant internal returns (uint256 z) {
         assert((z = x * y) >= x);
     }
@@ -261,6 +253,7 @@ contract DSMath {
 }
 
 contract ERC20 {
+    
     function totalSupply() constant returns (uint supply);
     function balanceOf( address who ) constant returns (uint value);
     function allowance( address owner, address spender ) constant returns (uint _allowance);
@@ -274,11 +267,14 @@ contract ERC20 {
 }
 
 contract DSTokenBase is ERC20, DSMath {
+    
     uint256                                            _supply;
+    string  public                                     _name;
     mapping (address => uint256)                       _balances;
     mapping (address => mapping (address => uint256))  _approvals;
     
-    function DSTokenBase(uint256 supply) {
+    function    DSTokenBase(uint256 supply) {
+        
         _balances[msg.sender] = supply;
         _supply = supply;
     }
@@ -286,11 +282,14 @@ contract DSTokenBase is ERC20, DSMath {
     function totalSupply() constant returns (uint256) {
         return _supply;
     }
+
     function balanceOf(address src) constant returns (uint256) {
         return _balances[src];
     }
-    function allowance(address src, address guy) constant returns (uint256) {
-        return _approvals[src][guy];
+
+    function allowance(address owner, address spender) constant returns (uint256) {
+        
+        return _approvals[owner][spender];
     }
     
     function transfer(address dst, uint wad) returns (bool) {
@@ -317,10 +316,11 @@ contract DSTokenBase is ERC20, DSMath {
         return true;
     }
     
-    function approve(address guy, uint256 wad) returns (bool) {
-        _approvals[msg.sender][guy] = wad;
+    function approve(address spender, uint256 wad) returns (bool) {
+
+        _approvals[msg.sender][spender] = wad;
         
-        Approval(msg.sender, guy, wad);
+        Approval(msg.sender, spender, wad);
         
         return true;
     }
@@ -339,11 +339,13 @@ contract DSToken is DSTokenBase(0), DSStop {
     function transfer(address dst, uint wad) stoppable note returns (bool) {
         return super.transfer(dst, wad);
     }
+
     function transferFrom(
         address src, address dst, uint wad
     ) stoppable note returns (bool) {
         return super.transferFrom(src, dst, wad);
     }
+
     function approve(address guy, uint wad) stoppable note returns (bool) {
         return super.approve(guy, wad);
     }
@@ -351,6 +353,7 @@ contract DSToken is DSTokenBase(0), DSStop {
     function push(address dst, uint128 wad) returns (bool) {
         return transfer(dst, wad);
     }
+
     function pull(address src, uint128 wad) returns (bool) {
         return transferFrom(src, msg.sender, wad);
     }
@@ -359,6 +362,7 @@ contract DSToken is DSTokenBase(0), DSStop {
         _balances[msg.sender] = add(_balances[msg.sender], wad);
         _supply = add(_supply, wad);
     }
+
     function burn(uint128 wad) auth stoppable note {
         _balances[msg.sender] = sub(_balances[msg.sender], wad);
         _supply = sub(_supply, wad);
