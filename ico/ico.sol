@@ -23,7 +23,7 @@ contract ERC20 {
     event 		Approval( address indexed owner, address indexed spender, uint value );
 }
 
-contract 	DSTokenBase is ERC20, safeMath {
+contract 	baseToken is ERC20, safeMath {
 
 	uint256			_supply;
 	string 			_name;
@@ -33,7 +33,7 @@ contract 	DSTokenBase is ERC20, safeMath {
 	mapping ( address => uint256 )							_balances;
 	mapping ( address => mapping ( address => uint256 ) )	_approvals;
 
-	function 	DSTokenBase( string nameToken, string symbolToken, uint256 supply, uint8 decimals ) {
+	function 	baseToken( string nameToken, string symbolToken, uint256 supply, uint8 decimals ) {
 		
 		uint256 	balance;
 
