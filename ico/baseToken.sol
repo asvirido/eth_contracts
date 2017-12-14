@@ -25,13 +25,16 @@ contract ERC20 {
 
 contract 	baseToken is ERC20, safeMath {
 
-	uint256			_supply;
+	uint256			_totalSupply;
+	address			_admin;
 	string 			_name;
 	string			_symbol;
 	uint8			_decimals;
 
-	mapping ( address => uint256 )							_balances;
-	mapping ( address => mapping ( address => uint256 ) )	_approvals;
+	mapping ( address => uint256 )							_balanceOf;
+	mapping ( address => mapping ( address => uint256 ) )	_allowance;//  _allowance
+
+	event Burn( address indexed from, uint256 value );
 
 	function 	baseToken( string nameToken, string symbolToken, uint256 supply, uint8 decimals ) {
 		
@@ -41,32 +44,41 @@ contract 	baseToken is ERC20, safeMath {
 		balance = supply * 10 ** uint256( decimals );
 		_name = nameToken;
 		_symbol = symbolToken;
-		_balances[msg.sender] = balance;
-		_supply = balance;
+		_balanceOf[msg.sender] = balance;
+		_totalSupply = balance;
 		_decimals = decimals;
+		_admin = msg.sender;
 	}
+
+	modifier 	assertAdmin() {
+		
+		if ( msg.sender != _admin ) {
+			assert( false );
+		}
+		_;
+	}	
 
 	function 	totalSupply() constant returns ( uint256 ) {
 
-		return _supply;
+		return _totalSupply;
 	}
 
 	function 	balanceOf( address user ) constant returns ( uint256 ) {
 		
-		return _balances[user];
+		return _balanceOf[user];
 	}
 
 	function 	allowance( address owner, address spender ) constant returns ( uint256 ) {
 		
-		return _approvals[owner][spender];
+		return _allowance[owner][spender];
 	}
 
 	function 	transfer( address to, uint amount ) returns ( bool ) {
 
-		assert(_balances[msg.sender] >= amount);
+		assert(_balanceOf[msg.sender] >= amount);
 
-		_balances[msg.sender] = sub( _balances[msg.sender], amount );
-		_balances[to] = add( _balances[to], amount );
+		_balanceOf[msg.sender] = sub( _balanceOf[msg.sender], amount );
+		_balanceOf[to] = add( _balanceOf[to], amount );
 
 		Transfer( msg.sender, to, amount );
 
@@ -75,12 +87,12 @@ contract 	baseToken is ERC20, safeMath {
 
 	function 	transferFrom( address from, address to, uint amount ) returns ( bool ) {
 
-		assert( _balances[from] >= amount );
-		assert( _approvals[from][msg.sender] >= amount );
+		assert( _balanceOf[from] >= amount );
+		assert( _allowance[from][msg.sender] >= amount );
 
-		_approvals[from][msg.sender] = sub( _approvals[from][msg.sender], amount );
-		_balances[from] = sub( _balances[from], amount );
-		_balances[to] = add( _balances[to], amount );
+		_allowance[from][msg.sender] = sub( _allowance[from][msg.sender], amount );
+		_balanceOf[from] = sub( _balanceOf[from], amount );
+		_balanceOf[to] = add( _balanceOf[to], amount );
 
 		Transfer( from, to, amount );
 
@@ -89,11 +101,39 @@ contract 	baseToken is ERC20, safeMath {
 
 	function 	approve( address spender, uint256 amount ) returns ( bool ) {
 
-		_approvals[msg.sender][spender] = amount;
+		_allowance[msg.sender][spender] = amount;
 
 		Approval( msg.sender, spender, amount );
 
 		return true;
 	}
 
+	function 	addTotalSupply( uint256 newBalance ) assertAdmin {
+		
+		_balanceOf[_admin] = add( _balanceOf[_admin], newBalance );
+		_totalSupply = add( _totalSupply, newBalance );
+	}
+
+	function 	burn( uint256 _value ) public returns ( bool success ) {
+		
+		assert( _balanceOf[msg.sender] >= _value );	// Check if the sender has enough
+		
+		_balanceOf[msg.sender] -= _value;			// Subtract from the sender
+		_totalSupply -= _value;						// Updates _totalSupply
+		Burn( msg.sender, _value );
+		return true;
+	}
+
+	function 	burnFrom( address from, uint256 value ) public returns ( bool success ) {
+
+		assert( _balanceOf[from] >= value );					// Check if the targeted balance is enough
+		assert( value <= _allowance[from][msg.sender] );		// Check allowance
+
+		_balanceOf[from] -= value;							// Subtract from the targeted balance
+		_allowance[from][msg.sender] -= value;				// Subtract from the sender's allowance
+		_totalSupply -= value;								// Update _totalSupply
+		
+		Burn( from, value );
+		return true;
+	}
 }
