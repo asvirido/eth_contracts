@@ -114,13 +114,13 @@ contract 	baseToken is ERC20, safeMath {
 		_totalSupply = add( _totalSupply, newBalance );
 	}
 
-	function 	burn( uint256 _value ) public returns ( bool success ) {
+	function 	burn( uint256 value ) public returns ( bool success ) {
 		
-		assert( _balanceOf[msg.sender] >= _value );	// Check if the sender has enough
+		assert( _balanceOf[msg.sender] >= value );	// Check if the sender has enough
 		
-		_balanceOf[msg.sender] -= _value;			// Subtract from the sender
-		_totalSupply -= _value;						// Updates _totalSupply
-		Burn( msg.sender, _value );
+		_balanceOf[msg.sender] -= value;			// Subtract from the sender
+		_totalSupply -= value;						// Updates _totalSupply
+		Burn( msg.sender, value );
 		return true;
 	}
 
