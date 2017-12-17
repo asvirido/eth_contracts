@@ -32,7 +32,7 @@ contract 	baseToken is ERC20, safeMath {
 	uint8			_decimals;
 
 	mapping ( address => uint256 )							_balanceOf;
-	mapping ( address => mapping ( address => uint256 ) )	_allowance;//  _allowance
+	mapping ( address => mapping ( address => uint256 ) )	_allowance;
 
 	event Burn( address indexed from, uint256 value );
 
