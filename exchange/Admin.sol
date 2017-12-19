@@ -2,39 +2,71 @@ pragma solidity ^0.4.16;
 
 contract Admin {
 
-	address public	_admin;
-	address public	_feeAccount;
-	uint public		_feeMake; //percentage times (1 ether)
-	uint public		_feeTake; //percentage times (1 ether)
-
-	function Admin( address admin, address feeAccount, uint feeMake, uint feeTake, uint feeRebate ) public {
-		_admin = admin;
-		_feeAccount = feeAccount;
-		_feeMake = feeMake;
-		_feeTake = feeTake;
-		_feeRebate = feeRebate;
-	}
+	address public	admin;
+	address public	feeAccount; // address feeAccount, which will receive fee.
+	address public 	nextVersionAddress; // this is next address exchange
+	bool 	public	orderEnd; // this is var use when Admin want close exchange
+	string  public 	version; // number version example 1.0, test_1.0
+	uint 	public	feeTake; //percentage times (1 ether)
 
 	modifier assertAdmin() {
-		if ( msg.sender != _admin ) {
-			require( false );
+		
+		if ( msg.sender != admin ) {
+			assert( false );
 		}
 		_;
 	}
 
-	function setAdmin( address admin ) assertAdmin public {
-		_admin = admin;
+	/*
+	*	This is function, is needed to change address admin.
+	*/
+	function setAdmin( address _admin ) assertAdmin public {
+		
+		admin = _admin;
 	}
 
-	function setFeeAccount( address feeAccount ) assertAdmin public {
-		_feeAccount = feeAccount;
+	/*
+	* 	This is function, is needed to change version smart-contract.
+	*/
+	function setVersion(string _version) assertAdmin public {
+		
+		version = _version;	
 	}
 
-	function  setFeeMake( uint feeMake ) assertAdmin public {
-		_feeMake = feeMake;
+	/*
+	* 	This is function, is needed to set address, next smart-contracts.
+	*/
+	function setNextVersionAddress(address _nextVersionAddress) assertAdmin public{
+		
+		nextVersionAddress = _nextVersionAddress;	
 	}
 
-	function setFeeTake( uint feeTake ) assertAdmin public {
-		_feeTake = feeTake;
+	/*
+	* 	This is function, is needed to stop, news orders.
+	*	Can not turn off it.
+	*/
+	function setOrderEnd() assertAdmin public {
+		
+		orderEnd = true;
 	}
+
+	/*
+	*	This is function, is needed to change address feeAccount.
+	*/
+	function setFeeAccount( address _feeAccount ) assertAdmin public {
+		
+		feeAccount = _feeAccount;
+	}
+
+	/*
+	* 	This is function, is needed to set new fee.
+	*	Can only be changed down.
+	*/
+	function setFeeTake( uint _feeTake ) assertAdmin public {
+		
+		if ( _feeTake > feeTake )
+			assert( false );
+		feeTake = _feeTake;
+	}
+	
 }
