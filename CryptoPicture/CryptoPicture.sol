@@ -35,7 +35,7 @@ contract CryptoPicture {
 
 		assertId( id );
 		hash = _cryptoPicture[id];
-		if ( owner != _ownerCryptoPicture[picture] ) {
+		if ( owner != _ownerCryptoPicture[hash] ) {
 			assert( false );
 		} 
 		_;
