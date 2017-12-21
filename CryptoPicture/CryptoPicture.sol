@@ -17,12 +17,10 @@ contract CryptoPicture {
 	event 	Approval( address owner, address spender, bytes32 cryptoPicture, bool resolution );
 	
 	function 	CryptoPicture() public {
-
 		_admin = msg.sender;
 	}
 
 	modifier 	assertAdmin() {
-		
 		if ( msg.sender != _admin ) {
 			assert( false );
 		}
@@ -30,7 +28,6 @@ contract CryptoPicture {
 	}
 
 	modifier 	assertOwnerPicture( address owner, uint id ) { 
-
 		bytes32 hash;
 
 		assertId( id );
@@ -42,13 +39,11 @@ contract CryptoPicture {
 	}
 
 	function 	setAdmin( address admin ) public assertAdmin {
-
 		_admin = admin;
 	}
 	
 
 	function  	addPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner ) public assertAdmin {
-
 		bytes32  hash;
 
 		assertId( id );
