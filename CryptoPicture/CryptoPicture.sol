@@ -59,6 +59,8 @@ contract CryptoPicture {
 		_noEmpty[id] = true;
 	}
 
+	// ERC20 similary	
+
 	function 	totalSupply() public constant returns ( uint supply )  {
 		supply = _supply;
 	}
@@ -100,7 +102,7 @@ contract CryptoPicture {
 		Transfer( from, to, hash );
 		return true;
 	}
-	
+	// END ERC20 similary
 
 	function 	getCryptoPicture( uint id ) public constant returns ( bytes32  hash ) {
 		assertId( id );
