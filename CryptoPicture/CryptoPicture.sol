@@ -101,6 +101,7 @@ contract CryptoPicture {
 		if ( _allowance[from][msg.sender][hash] == false )
 			assert( false );
 		_ownerCryptoPicture[hash] = to;
+		_allowance[from][msg.sender][hash] = false;
 		Transfer( from, to, hash );
 		return true;
 	}
