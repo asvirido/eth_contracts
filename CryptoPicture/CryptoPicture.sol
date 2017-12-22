@@ -11,6 +11,8 @@ contract CryptoPicture {
 	mapping ( bytes32 => string ) 	_authorCryptoPicture;
 	mapping ( bytes32 => bytes32 ) 	_hashPicture;
 	mapping ( bytes32 => address ) 	_ownerCryptoPicture;
+	mapping ( bytes32 => string ) 	_description;
+	
 
 	mapping ( address => mapping ( address => mapping ( bytes32 => bool ) ) ) 	_allowance;
 
@@ -18,121 +20,140 @@ contract CryptoPicture {
 	event 	Approval( address owner, address spender, bytes32 cryptoPicture, bool resolution );
 	
 	function 	CryptoPicture() public {
+
 		_admin = msg.sender;
 	}
 
-	modifier 	assertAdmin() {
+	/*** Assert  functions ***/
+	function 	assertAdmin() private {
+
 		if ( msg.sender != _admin ) {
 			assert( false );
 		}
 		_;
 	}
 
-	modifier 	assertOwnerPicture( address owner, uint id ) { 
-		bytes32 hash;
+	function 	assertOwnerPicture( address owner, bytes32 hash ) private { 
 
-		assertId( id );
-		hash = _cryptoPicture[id];
 		if ( owner != _ownerCryptoPicture[hash] ) {
 			assert( false );
 		} 
-		_;
 	}
 
+	function 	assertId( uint id ) private {		
+
+		if ( id >= _supply )
+			assert( false );
+	}
+
+	function 	assertNoEmpty( uint id ) private {
+
+		if (_noEmpty[id] == true )
+			assert( false );
+	}
+
+	function 	assertAllowance(address from, bytes32 hash) private {
+
+		if ( _allowance[from][msg.sender][hash] == false )
+			assert( false );
+	}
+
+	/*** Admin panel ***/
 	function 	setAdmin( address admin ) public assertAdmin {
+
 		_admin = admin;
 	}
-	
 
-	function  	addPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner ) public assertAdmin {
-		bytes32  hash;
+	function  	addPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner, string description) public {
 
+		bytes32  	hash;
+
+		assertAdmin();
 		assertId( id );
 		assertNoEmpty( id );
 
-		hash = sha256( this, id, namePicture, hashPicture, author, owner );
+		hash = sha256( this, id, namePicture, hashPicture, author, owner, description );
 
 		_cryptoPicture[id] = hash;
 		_namePicture[hash] = namePicture;
 		_authorCryptoPicture[hash] = author;
 		_ownerCryptoPicture[hash] = owner;
 		_hashPicture[hash] = hashPicture;
+		_description = description;
 		_noEmpty[id] = true;
 	}
 
-	// ERC20 similary	
-
+	/*** ERC20 similary ***/
 	function 	totalSupply() public constant returns ( uint supply )  {
+
 		supply = _supply;
 	}
 	
-	function 	allowance( address owner, address spender, uint id ) public constant returns ( bool ) {
-		bytes32 	picture;
-		
-		assertId( id );
-		picture = _cryptoPicture[id];
+	function 	allowance( address owner, address spender, bytes32 picture) public constant returns ( bool ) {
+
 		return 	_allowance[owner][spender][picture];
 	}
 
-	function 	approve( address spender, uint id, bool resolution ) public assertOwnerPicture( msg.sender, id ) returns ( bool ) {
-		bytes32 	hash;
+	function 	approve( address spender, bytes32 hash, bool resolution ) public returns ( bool ) {
 
-		hash = _cryptoPicture[id];
+		assertOwnerPicture( msg.sender, hash );
+
 		_allowance[msg.sender][spender][hash] = resolution;
 		Approval( msg.sender, spender, hash, resolution );
 		return true;
 	}
 
-	function 	transfer( address to, uint id ) public assertOwnerPicture( msg.sender, id ) returns ( bool ) {
-		bytes32 hash;
+	function 	transfer( address to, bytes32 hash ) public returns ( bool ) {
 
-		hash = _cryptoPicture[id];
+		assertOwnerPicture( msg.sender, hash );
+
 		_ownerCryptoPicture[hash] = to;
 		Transfer( msg.sender, to, hash );
 		return true;
 	}
 
-	function 	transferFrom( address from, address to, uint id ) public assertOwnerPicture( from, id ) returns( bool ) {
-		bytes32 	hash;
+	function 	transferFrom( address from, address to, bytes32 hash ) public returns( bool ) {
 
-		hash = _cryptoPicture[id];
-		if ( _allowance[from][msg.sender][hash] == false )
-			assert( false );
+		assertOwnerPicture( from, hash );
+		assertAllowance( from, hash );
+
+		
 		_ownerCryptoPicture[hash] = to;
 		_allowance[from][msg.sender][hash] = false;
 		Transfer( from, to, hash );
 		return true;
 	}
-	// END ERC20 similary
 
+	/*** Get variable ***/
 	function 	getCryptoPicture( uint id ) public constant returns ( bytes32  hash ) {
+
 		assertId( id );
+		
 		hash = _cryptoPicture[id];
 	}
-	
+
 	function 	getNamePicture( bytes32 picture ) public constant returns ( string name ) {
+
 		name = _namePicture[picture];
 	}
 
 	function 	getAutorPicture( bytes32 picture ) public constant returns ( string author ) {
+
 		author = _authorCryptoPicture[picture];
 	}
-	
+
+	function 	getDescription( bytes32 picture ) public constant returns ( string description ) {
+
+		description = _description[picture];
+	}
+
 	function 	getHashPicture( bytes32 picture ) public constant returns ( bytes32 hash ) {
+
 		hash = _hashPicture[picture];
 	}
 
 	function 	getOwnerPicture( bytes32 picture ) public constant returns ( address owner ) {
+
 		owner = _ownerCryptoPicture[picture];
 	}
-
-	function 	assertId( uint id ) private {		
-		if ( id >= _supply )
-			assert( false );
-	}
-
-	function 	assertNoEmpty( uint id ) private {
-		if (_noEmpty[id] == true )
-			assert( false );
-	}	
 }
