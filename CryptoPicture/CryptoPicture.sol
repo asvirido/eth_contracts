@@ -12,8 +12,6 @@ contract CryptoPicture {
 	mapping ( bytes32 => bytes32 ) 	_hashPicture;
 	mapping ( bytes32 => address ) 	_ownerCryptoPicture;
 	mapping ( bytes32 => string ) 	_description;
-	
-
 	mapping ( address => mapping ( address => mapping ( bytes32 => bool ) ) ) 	_allowance;
 
 	event 	Transfer( address from, address to, bytes32 picture );
@@ -68,7 +66,7 @@ contract CryptoPicture {
 
 	function  	addPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner, string description) public {
 
-		bytes32  	hash;
+		bytes32 	hash;
 
 		assertAdmin();
 		assertId( id );
