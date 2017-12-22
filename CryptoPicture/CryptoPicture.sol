@@ -59,7 +59,9 @@ contract CryptoPicture {
 	}
 
 	/*** Admin panel ***/
-	function 	setAdmin( address admin ) public assertAdmin {
+	function 	setAdmin( address admin ) public {
+
+		assertAdmin();
 
 		_admin = admin;
 	}
