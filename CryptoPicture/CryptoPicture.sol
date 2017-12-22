@@ -2,9 +2,9 @@
 contract CryptoPicture {
 
 	address				_admin;
-	uint constant		_supply = 30;
-	bytes32[supply] 	_cryptoPicture;
-	bool[supply]		_noEmpty;
+	uint constant		_supply = 29;
+	bytes32[_supply] 	_cryptoPicture;
+	bool[_supply]		_noEmpty;
 
 	mapping ( bytes32 => string ) 	_namePicture;
 	mapping ( bytes32 => string ) 	_authorCryptoPicture;
@@ -52,7 +52,7 @@ contract CryptoPicture {
 		hash = sha256( this, id, namePicture, hashPicture, author, owner );
 
 		_cryptoPicture[id] = hash;
-		_namePicture[hash] = name;
+		_namePicture[hash] = namePicture;
 		_authorCryptoPicture[hash] = author;
 		_ownerCryptoPicture[hash] = owner;
 		_hashPicture[hash] = hashPicture;
@@ -106,7 +106,6 @@ contract CryptoPicture {
 
 	function 	getCryptoPicture( uint id ) public constant returns ( bytes32  hash ) {
 		assertId( id );
-
 		hash = _cryptoPicture[id];
 	}
 	
@@ -114,7 +113,7 @@ contract CryptoPicture {
 		name = _namePicture[picture];
 	}
 
-	function 	getAutorPicture( bytes32 picture ) public constant returns ( string autor ) {
+	function 	getAutorPicture( bytes32 picture ) public constant returns ( string author ) {
 		author = _authorCryptoPicture[picture];
 	}
 	
