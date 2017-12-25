@@ -41,7 +41,6 @@ contract CryptoPicture {
 	}
 
 	function 	assertAllowance(address from, bytes32 hash) private {
-
 		if ( _allowance[from][msg.sender][hash] == false )
 			assert( false );
 	}
@@ -58,7 +57,6 @@ contract CryptoPicture {
 
 	/*** Admin panel ***/
 	function  	addPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner, string description ) public {
-
 		bytes32 	hash;
 
 		assertAdmin();
@@ -75,21 +73,22 @@ contract CryptoPicture {
 		_description[hash] = description;
 		_count++;
 	}
+
 	function	setEndEdit() public {
 		assertAdmin();
 		_endEdit = true;
 	}
 
+	function 	setAdmin( address admin ) public {
+		assertAdmin();
+		_admin = admin;
+	}
+
+	/*** Edit function for Admin ***/
 	function 	setNamePiture( bytes32 hash, string namePicture ) public {
 		assertAdmin();
 		assertEdit();
 		_namePicture[hash] = namePicture;
-	}
-
-	function 	setHashPiture( bytes32 hash, bytes32 hashPicture ) public {
-		assertAdmin();
-		assertEdit();
-		_hashPicture[hash] = hashPicture;
 	}
 
 	function 	setAuthor( bytes32 hash, string author ) public {
@@ -98,21 +97,22 @@ contract CryptoPicture {
 		_authorCryptoPicture[hash] = author;
 	}
 
-	function 	setOwner( bytes32 hash, address owner ) public {
-		assertAdmin();
-		assertEdit();
-		_ownerCryptoPicture[hash] = owner;
-	}
-
 	function 	setDescription( bytes32 hash, string description ) public {
 		assertAdmin();
 		assertEdit();
 		_description[hash] = description;
 	}
 
-	function 	setAdmin( address admin ) public {
+	function 	setHashPiture( bytes32 hash, bytes32 hashPicture ) public {
 		assertAdmin();
-		_admin = admin;
+		assertEdit();
+		_hashPicture[hash] = hashPicture;
+	}
+
+	function 	setOwner( bytes32 hash, address owner ) public {
+		assertAdmin();
+		assertEdit();
+		_ownerCryptoPicture[hash] = owner;
 	}
 
 	/*** ERC20 similary ***/
@@ -121,12 +121,10 @@ contract CryptoPicture {
 	}
 
 	function 	allowance( address owner, address spender, bytes32 picture) public constant returns ( bool ) {
-
 		return 	_allowance[owner][spender][picture];
 	}
 
 	function 	approve( address spender, bytes32 hash, bool resolution ) public returns ( bool ) {
-
 		assertOwnerPicture( msg.sender, hash );
 
 		_allowance[msg.sender][spender][hash] = resolution;
@@ -135,7 +133,6 @@ contract CryptoPicture {
 	}
 
 	function 	transfer( address to, bytes32 hash ) public returns ( bool ) {
-
 		assertOwnerPicture( msg.sender, hash );
 
 		_ownerCryptoPicture[hash] = to;
@@ -144,10 +141,8 @@ contract CryptoPicture {
 	}
 
 	function 	transferFrom( address from, address to, bytes32 hash ) public returns( bool ) {
-
 		assertOwnerPicture( from, hash );
 		assertAllowance( from, hash );
-
 
 		_ownerCryptoPicture[hash] = to;
 		_allowance[from][msg.sender][hash] = false;
@@ -157,14 +152,12 @@ contract CryptoPicture {
 
 	/*** Get variable ***/
 	function 	getCryptoPicture( uint id ) public constant returns ( bytes32  hash ) {
-
 		assertId( id );
 
 		hash = _cryptoPicture[id];
 	}
 
 	function 	getNamePicture( bytes32 picture ) public constant returns ( string name ) {
-
 		name = _namePicture[picture];
 	}
 
