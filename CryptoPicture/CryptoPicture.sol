@@ -9,9 +9,9 @@ contract CryptoPicture {
 	bool				_endEdit;
 
 	mapping ( bytes32 => string ) 	_namePicture;
-	mapping ( bytes32 => string ) 	_authorCryptoPicture;
+	mapping ( bytes32 => string ) 	_author;
 	mapping ( bytes32 => bytes32 ) 	_hashPicture;
-	mapping ( bytes32 => address ) 	_ownerCryptoPicture;
+	mapping ( bytes32 => address ) 	_owner;
 	mapping ( bytes32 => string ) 	_description;
 	mapping ( address => mapping ( address => mapping ( bytes32 => bool ) ) ) 	_allowance;
 
@@ -30,7 +30,7 @@ contract CryptoPicture {
 	}
 
 	function 	assertOwnerPicture( address owner, bytes32 hash ) private {
-		if ( owner != _ownerCryptoPicture[hash] ) {
+		if ( owner != _owner[hash] ) {
 			assert( false );
 		}
 	}
@@ -56,21 +56,11 @@ contract CryptoPicture {
 	}
 
 	/*** Admin panel ***/
-	function  	addPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner, string description ) public {
-		bytes32 	hash;
-
+	function  	addPicture( string namePicture, bytes32 hashPicture, string author, address owner, string description ) public {
 		assertAdmin();
-		assertId( id );
 		assertCount();
 
-		hash = sha256( this, id, namePicture, hashPicture, author, owner, description );
-
-		_cryptoPicture[id] = hash;
-		_namePicture[hash] = namePicture;
-		_authorCryptoPicture[hash] = author;
-		_ownerCryptoPicture[hash] = owner;
-		_hashPicture[hash] = hashPicture;
-		_description[hash] = description;
+		setPicture(_count, namePicture, hashPicture, author, owner, description);
 		_count++;
 	}
 
@@ -85,34 +75,69 @@ contract CryptoPicture {
 	}
 
 	/*** Edit function for Admin ***/
-	function 	setNamePiture( bytes32 hash, string namePicture ) public {
+	function 	setNamePiture( uint id, string namePicture ) public {
+		bytes32 	hash;
+
+		assertProtectedEdit( id );
+
+		hash = _cryptoPicture[id];
+		setPicture( id, namePicture, _hashPicture[hash], _author[hash], _owner[hash], _description[hash] );
+	}
+
+	function 	setAuthor( uint id, string author ) public {
+		bytes32 	hash;
+
+		assertProtectedEdit( id );
+
+		hash = _cryptoPicture[id];
+		setPicture( id, _namePicture[hash], _hashPicture[hash], author, _owner[hash], _description[hash] );
+	}
+
+	function 		setDescription( uint id, string description ) public {
+		bytes32 	hash;
+
+		assertProtectedEdit( id );
+
+		hash = _cryptoPicture[id];
+		setPicture( id, _namePicture[hash], _hashPicture[hash], _author[hash], _owner[hash], description );
+	}
+
+	function 		setHashPiture( uint id, bytes32 hashPicture ) public {
+		bytes32 	hash;
+
+		assertProtectedEdit( id );
+
+		hash = _cryptoPicture[id];
+		setPicture( id, _namePicture[hash], hashPicture, _author[hash], _owner[hash], _description[hash] );
+	}
+
+	function 		setOwner( uint id, address owner ) public {
+		bytes32 	hash;
+
+		assertProtectedEdit( id );
+
+		hash = _cryptoPicture[id];
+		setPicture( id, _namePicture[hash], _hashPicture[hash], _author[hash], owner, _description[hash] );
+	}
+
+	/*** private function for edit field cryptoPicture	***/
+	function	assertProtectedEdit( uint id ) private {
 		assertAdmin();
 		assertEdit();
+		assertId( id );
+	}
+
+	function 	setPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner, string description ) private {
+		bytes32 	hash;
+
+		hash = sha256( this, id, namePicture, hashPicture, author, owner, description );
+
+		_cryptoPicture[id] = hash;
 		_namePicture[hash] = namePicture;
-	}
-
-	function 	setAuthor( bytes32 hash, string author ) public {
-		assertAdmin();
-		assertEdit();
-		_authorCryptoPicture[hash] = author;
-	}
-
-	function 	setDescription( bytes32 hash, string description ) public {
-		assertAdmin();
-		assertEdit();
-		_description[hash] = description;
-	}
-
-	function 	setHashPiture( bytes32 hash, bytes32 hashPicture ) public {
-		assertAdmin();
-		assertEdit();
+		_author[hash] = author;
+		_owner[hash] = owner;
 		_hashPicture[hash] = hashPicture;
-	}
-
-	function 	setOwner( bytes32 hash, address owner ) public {
-		assertAdmin();
-		assertEdit();
-		_ownerCryptoPicture[hash] = owner;
+		_description[hash] = description;
 	}
 
 	/*** ERC20 similary ***/
@@ -135,7 +160,7 @@ contract CryptoPicture {
 	function 	transfer( address to, bytes32 hash ) public returns ( bool ) {
 		assertOwnerPicture( msg.sender, hash );
 
-		_ownerCryptoPicture[hash] = to;
+		_owner[hash] = to;
 		Transfer( msg.sender, to, hash );
 		return true;
 	}
@@ -144,7 +169,7 @@ contract CryptoPicture {
 		assertOwnerPicture( from, hash );
 		assertAllowance( from, hash );
 
-		_ownerCryptoPicture[hash] = to;
+		_owner[hash] = to;
 		_allowance[from][msg.sender][hash] = false;
 		Transfer( from, to, hash );
 		return true;
@@ -162,7 +187,7 @@ contract CryptoPicture {
 	}
 
 	function 	getAutorPicture( bytes32 picture ) public constant returns ( string author ) {
-		author = _authorCryptoPicture[picture];
+		author = _author[picture];
 	}
 
 	function 	getDescription( bytes32 picture ) public constant returns ( string description ) {
@@ -174,6 +199,6 @@ contract CryptoPicture {
 	}
 
 	function 	getOwnerPicture( bytes32 picture ) public constant returns ( address owner ) {
-		owner = _ownerCryptoPicture[picture];
+		owner = _owner[picture];
 	}
 }
