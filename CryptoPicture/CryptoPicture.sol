@@ -4,7 +4,7 @@ contract CryptoPicture {
 
 	address		public	_admin;
 	uint				_supply = 29;
-	uint 				_count;
+	uint 				_id;
 	bytes32[29]			_cryptoPicture;
 	bool				_endEdit;
 
@@ -39,7 +39,7 @@ contract CryptoPicture {
 			assert( false );
 	}
 
-	function 	assertAllowance(address from, bytes32 hash) view private {
+	function 	assertAllowance( address from, bytes32 hash ) view private {
 		if ( _allowance[from][msg.sender][hash] == false )
 			assert( false );
 	}
@@ -49,18 +49,19 @@ contract CryptoPicture {
 			assert( false );
 	}
 
-	function 	assertCount() view private {
-		if ( _count >= _supply )
-			assert( false );
+	function	assertProtectedEdit( uint id ) view private {
+		assertAdmin();
+		assertEdit();
+		assertId( id );
 	}
 
 	/*** Admin panel ***/
-	function  	addPicture( string namePicture, bytes32 hashPicture, string author, address owner) public {
+	function  	addPicture( string namePicture, bytes32 hashPicture, string author, address owner ) public {
 		assertAdmin();
-		assertCount();
+		assertId(_id);
 
-		setPicture(_count, namePicture, hashPicture, author, owner);
-		_count++;
+		setPicture( _id, namePicture, hashPicture, author, owner );
+		_id++;
 	}
 
 	function	setEndEdit() public {
@@ -111,12 +112,6 @@ contract CryptoPicture {
 	}
 
 	/*** private function for edit field cryptoPicture	***/
-	function	assertProtectedEdit( uint id ) view private {
-		assertAdmin();
-		assertEdit();
-		assertId( id );
-	}
-
 	function 	setPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner ) private {
 		bytes32 	hash;
 
@@ -165,25 +160,25 @@ contract CryptoPicture {
 	}
 
 	/*** Get variable ***/
-	function 	getCryptoPicture( uint id ) public constant returns ( bytes32  hash ) {
+	function 	getCryptoPicture( uint id ) public constant returns ( bytes32 ) {
 		assertId( id );
 
-		hash = _cryptoPicture[id];
+		return _cryptoPicture[id];
 	}
 
-	function 	getNamePicture( bytes32 picture ) public constant returns ( string name ) {
-		name = _namePicture[picture];
+	function 	getNamePicture( bytes32 picture ) public constant returns ( string ) {
+		return _namePicture[picture];
 	}
 
-	function 	getAutorPicture( bytes32 picture ) public constant returns ( string author ) {
-		author = _author[picture];
+	function 	getAutorPicture( bytes32 picture ) public constant returns ( string ) {
+		return _author[picture];
 	}
 
-	function 	getHashPicture( bytes32 picture ) public constant returns ( bytes32 hash ) {
-		hash = _hashPicture[picture];
+	function 	getHashPicture( bytes32 picture ) public constant returns ( bytes32 ) {
+		return _hashPicture[picture];
 	}
 
-	function 	getOwnerPicture( bytes32 picture ) public constant returns ( address owner ) {
-		owner = _owner[picture];
+	function 	getOwnerPicture( bytes32 picture ) public constant returns ( address ) {
+		return _owner[picture];
 	}
 }
