@@ -3,9 +3,9 @@ pragma solidity ^0.4.18;
 contract CryptoPicture {
 
 	address		public	_admin;
-	uint		        _supply = 29;
+	uint				_supply = 29;
 	uint 				_count;
-	bytes32[29] 	    _cryptoPicture;
+	bytes32[29]			_cryptoPicture;
 	bool				_endEdit;
 
 	mapping ( bytes32 => string ) 	_namePicture;
@@ -44,12 +44,12 @@ contract CryptoPicture {
 			assert( false );
 	}
 
-	function 	assertEdit() view public {
+	function 	assertEdit() view private {
 		if ( _endEdit == true )
 			assert( false );
 	}
 
-	function 	assertCount() view public {
+	function 	assertCount() view private {
 		if ( _count >= _supply )
 			assert( false );
 	}
@@ -130,8 +130,8 @@ contract CryptoPicture {
 	}
 
 	/*** ERC20 similary ***/
-	function 	totalSupply() public constant returns ( uint supply )  {
-		supply = _supply;
+	function 	totalSupply() public constant returns ( uint )  {
+		return 	_supply;
 	}
 
 	function 	allowance( address owner, address spender, bytes32 picture) public constant returns ( bool ) {
