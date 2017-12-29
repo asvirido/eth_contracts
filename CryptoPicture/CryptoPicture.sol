@@ -115,7 +115,7 @@ contract CryptoPicture {
 	function 	setPicture( uint id, string namePicture, bytes32 hashPicture, string author, address owner ) private {
 		bytes32 	hash;
 
-		hash = sha256( this, id, namePicture, hashPicture, author, owner );
+		hash = sha256( this, id, namePicture, hashPicture, author );
 
 		_cryptoPicture[id] = hash;
 		_namePicture[hash] = namePicture;
