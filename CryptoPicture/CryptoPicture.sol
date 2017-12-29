@@ -6,7 +6,7 @@ contract CryptoPicture {
 	uint				_supply = 29;
 	uint 				_id;
 	bytes32[29]			_cryptoPicture;
-	bool				_endEdit;
+	bool		public	_endEdit;
 
 	mapping ( bytes32 => string ) 	_namePicture;
 	mapping ( bytes32 => string ) 	_author;
