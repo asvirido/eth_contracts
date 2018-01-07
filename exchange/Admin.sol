@@ -1,5 +1,3 @@
-pragma solidity ^0.4.16;
-
 contract Admin {
 
 	address public	admin;
@@ -10,7 +8,6 @@ contract Admin {
 	uint 	public	feeTake; //percentage times (1 ether)
 
 	modifier assertAdmin() {
-		
 		if ( msg.sender != admin ) {
 			assert( false );
 		}
@@ -21,7 +18,6 @@ contract Admin {
 	*	This is function, is needed to change address admin.
 	*/
 	function setAdmin( address _admin ) assertAdmin public {
-		
 		admin = _admin;
 	}
 
@@ -29,7 +25,6 @@ contract Admin {
 	* 	This is function, is needed to change version smart-contract.
 	*/
 	function setVersion(string _version) assertAdmin public {
-		
 		version = _version;	
 	}
 
@@ -37,7 +32,6 @@ contract Admin {
 	* 	This is function, is needed to set address, next smart-contracts.
 	*/
 	function setNextVersionAddress(address _nextVersionAddress) assertAdmin public{
-		
 		nextVersionAddress = _nextVersionAddress;	
 	}
 
@@ -46,7 +40,6 @@ contract Admin {
 	*	Can not turn off it.
 	*/
 	function setOrderEnd() assertAdmin public {
-		
 		orderEnd = true;
 	}
 
@@ -54,7 +47,6 @@ contract Admin {
 	*	This is function, is needed to change address feeAccount.
 	*/
 	function setFeeAccount( address _feeAccount ) assertAdmin public {
-		
 		feeAccount = _feeAccount;
 	}
 
@@ -63,10 +55,8 @@ contract Admin {
 	*	Can only be changed down.
 	*/
 	function setFeeTake( uint _feeTake ) assertAdmin public {
-		
 		if ( _feeTake > feeTake )
 			assert( false );
 		feeTake = _feeTake;
 	}
-	
 }

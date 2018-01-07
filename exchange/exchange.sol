@@ -1,125 +1,8 @@
-pragma solidity ^0.4.16;
+pragma solidity ^0.4.18;
 
-contract SafeMath {
-
-	function safeMul( uint a, uint b ) internal returns ( uint ) {
-		
-		uint 	c;
-		
-		c = a * b;
-		assert( a == 0 || c / a == b );
-		return c;
-	}
-
-	function safeSub( uint a, uint b ) internal returns ( uint ) {
-		
-		assert( b <= a );
-		return a - b;
-	}
-
-	function safeAdd( uint a, uint b ) internal returns ( uint ) {
-		
-		uint 	c;
-	
-		c = a + b;
-		assert( c >= a && c >= b );
-		return c;
-	}
-}
-
-/*
-* Interface ERC20
-*/
-
-contract Token {
-
-	function totalSupply() public constant returns ( uint256 supply );
-	
-	function balanceOf( address _owner ) public constant returns ( uint256 balance );
-	
-	function transfer( address _to, uint256 _value ) public returns ( bool success );
-	
-	function transferFrom( address _from, address _to, uint256 _value ) public returns ( bool success );
-	
-	function approve( address _spender, uint256 _value ) public returns ( bool success );
-
-	function allowance( address _owner, address _spender ) public constant returns ( uint256 remaining );
-	
-	event Transfer( address indexed _from, address indexed _to, uint256 _value );
-
-	event Approval( address indexed _owner, address indexed _spender, uint256 _value );
-}
-
-contract Admin {
-
-	address public	admin;
-	address public	feeAccount; // address feeAccount, which will receive fee.
-	address public 	nextVersionAddress; // this is next address exchange
-	bool 	public	orderEnd; // this is var use when Admin want close exchange
-	string  public 	version; // number version example 1.0, test_1.0
-	uint 	public	feeTake; //percentage times (1 ether)
-
-	modifier assertAdmin() {
-		
-		if ( msg.sender != admin ) {
-			assert( false );
-		}
-		_;
-	}
-
-	/*
-	*	This is function, is needed to change address admin.
-	*/
-	function setAdmin( address _admin ) assertAdmin public {
-		
-		admin = _admin;
-	}
-
-	/*
-	* 	This is function, is needed to change version smart-contract.
-	*/
-	function setVersion(string _version) assertAdmin public {
-		
-		version = _version;	
-	}
-
-	/*
-	* 	This is function, is needed to set address, next smart-contracts.
-	*/
-	function setNextVersionAddress(address _nextVersionAddress) assertAdmin public{
-		
-		nextVersionAddress = _nextVersionAddress;	
-	}
-
-	/*
-	* 	This is function, is needed to stop, news orders.
-	*	Can not turn off it.
-	*/
-	function setOrderEnd() assertAdmin public {
-		
-		orderEnd = true;
-	}
-
-	/*
-	*	This is function, is needed to change address feeAccount.
-	*/
-	function setFeeAccount( address _feeAccount ) assertAdmin public {
-		
-		feeAccount = _feeAccount;
-	}
-
-	/*
-	* 	This is function, is needed to set new fee.
-	*	Can only be changed down.
-	*/
-	function setFeeTake( uint _feeTake ) assertAdmin public {
-		
-		if ( _feeTake > feeTake )
-			assert( false );
-		feeTake = _feeTake;
-	}
-	
-}
+import "SafeMath.sol";
+import "Token.sol";
+import "Admin.sol";
 
 contract Exchange is SafeMath, Admin {
 
@@ -134,7 +17,6 @@ contract Exchange is SafeMath, Admin {
 	event Trade( address makeAddress, address tokenMake, uint amountGiveMake, address takeAddress, address tokenTake, uint quantityTake, uint feeTakeXfer, uint balanceOrder );
 
 	function Exchange( address _admin, address _feeAccount, uint _feeTake, string _version) public {
-		
 		admin = _admin;
 		feeAccount = _feeAccount;
 		feeTake = _feeTake;
@@ -143,14 +25,12 @@ contract Exchange is SafeMath, Admin {
 	}
 
  	function 	depositEth() payable public {
-		
  		assertQuantity( msg.value );
 		tokens[0][msg.sender] = safeAdd( tokens[0][msg.sender], msg.value );
 		Deposit( 0, msg.sender, msg.value, tokens[0][msg.sender] );
  	}
 
 	function 	withdrawEth( uint amount ) public {
-		
 		assertQuantity( amount );
 		tokens[0][msg.sender] = safeSub( tokens[0][msg.sender], amount );
 		msg.sender.transfer( amount );
@@ -158,7 +38,6 @@ contract Exchange is SafeMath, Admin {
 	}
 
 	function 	depositToken( address token, uint amount ) public {
-
 		assertToken( token );
 		assertQuantity( amount );
 		tokens[token][msg.sender] = safeAdd( tokens[token][msg.sender], amount );
@@ -169,7 +48,6 @@ contract Exchange is SafeMath, Admin {
 	}
 
 	function 	withdrawToken( address token, uint amount ) public {
-		
 		assertToken( token );
 		assertQuantity( amount );
 		if ( Token( token ).transfer( msg.sender, amount ) == false ) {
@@ -180,7 +58,6 @@ contract Exchange is SafeMath, Admin {
 	}
 	
 	function 	order( address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce ) public {
-
 		bytes32 	hash;
 
 		assertQuantity( amountTake );
@@ -199,7 +76,6 @@ contract Exchange is SafeMath, Admin {
 	}
 
 	function 	orderCancel( address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce ) public {
-
 		bytes32 	hash;
 
 		assertQuantity( amountTake );
@@ -229,8 +105,7 @@ contract Exchange is SafeMath, Admin {
 		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash);
 	}
 
-	function tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash) private {
-
+	function 	tradeBalances( address tokenTake, address tokenMake, uint amountTake, uint amountMake, address makeAddress, uint quantityTake, bytes32 hash) private {
 		uint 		feeTakeXfer;
 		address 	takeAddress;
 		uint 		amountGiveMake;
@@ -249,30 +124,26 @@ contract Exchange is SafeMath, Admin {
 		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer, ordersBalance[hash][makeAddress] );
 	}
 
-	function assertQuantity( uint amount ) private {
-
+	function 	assertQuantity( uint amount ) private {
 		if ( amount == 0 ) {
 			assert( false );
 		}
 	}
 
-	function assertToken( address token ) private { 
-		
+	function 	assertToken( address token ) private { 
 		if ( token == 0 ) {
 			assert( false );
 		}
 	}
 
 
-	function assertOrders( address makeAddress, bytes32 hash ) private {
-		
+	function 	assertOrders( address makeAddress, bytes32 hash ) private {
 		if ( orders[makeAddress][hash] == false ) {
 			assert( false );
 		}
 	}
 
-	function assertCompareBalance( uint a, uint b ) private {
-		
+	function 	assertCompareBalance( uint a, uint b ) private {
 		if ( a > b ) {
 			assert( false );
 		}
