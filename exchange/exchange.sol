@@ -53,7 +53,7 @@ contract Exchange is SafeMath, Admin {
 		if ( Token( token ).transfer( msg.sender, amount ) == false ) {
 			assert( false );
 		}
-		tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount );
+		tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount ); // уязвимость двойного входа?
 	    Withdraw( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
 	
