@@ -1,7 +1,8 @@
-interface IAdmin {
+pragma solidity ^0.4.18;
 
+interface IAdmin {
 	function 	assertAdmin() private returns ( bool );
-	function 	setAdmin( address admin )   private returns ( bool );
+	function 	setAdmin( address admin ) public returns ( bool );
 	function 	getAdmin() public constant returns( address admin );
 }
 
@@ -19,13 +20,14 @@ contract Admin is IAdmin{
 		return true;
 	}
 
-	function 	setAdmin( address admin ) 	private returns ( bool ) {
+	function 	setAdmin( address admin ) public returns ( bool ) {
 		assertAdmin();
+
 		_admin = admin;
 		return true;
 	}
 
 	function 	getAdmin() public constant returns( address admin ) {
-		return _admin;
+		return 	_admin;
 	}
 }

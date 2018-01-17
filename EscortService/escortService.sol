@@ -1,34 +1,34 @@
 pragma solidity ^0.4.18;
 
-contract Admin {
+// contract Admin {
 
-	address private _admin;
+// 	address private _admin;
 
-	function 	Admin( address admin ) public {
-		_admin = admin;
-	}
+// 	function 	Admin( address admin ) public {
+// 		_admin = admin;
+// 	}
 
-	function 	assertAdmin() private returns ( bool ) {
-		if ( _admin != msg.sender )
-			require( false );
-		return true;
-	}
+// 	function 	assertAdmin() private returns ( bool ) {
+// 		if ( _admin != msg.sender )
+// 			require( false );
+// 		return true;
+// 	}
 
-	function 	setAdmin( address admin ) 	private returns ( bool ) {
-		assertAdmin();
-		_admin = admin;
-		return true;
-	}
+// 	function 	setAdmin( address admin ) 	private returns ( bool ) {
+// 		assertAdmin();
+// 		_admin = admin;
+// 		return true;
+// 	}
 
-	function 	getAdmin() public constant returns( address admin ) {
-		return _admin;
-	}
-}
+// 	function 	getAdmin() public constant returns( address admin ) {
+// 		return _admin;
+// 	}
+// }
 
-interface 	ERS20 {
-	function 	transfer( address to, uint value ) public returns ( bool ok );
-	function 	transferFrom( address from, address to, uint value) public returns ( bool ok );
-}
+// interface 	ERS20 {
+// 	function 	transfer( address to, uint value ) public returns ( bool ok );
+// 	function 	transferFrom( address from, address to, uint value) public returns ( bool ok );
+// }
 
 
 /*
@@ -71,14 +71,14 @@ function 	depositEth() payable public {
 */
 
 
-contract EscortService is Admin {
+// contract EscortService is Admin {
 
-	address private 	_tokenEscort;
+// 	address private 	_tokenEscort;
 
-	mapping ( address => mapping (address => uint) ) private _balanceOf;
+// 	mapping ( address => mapping (address => uint) ) private _balanceOf;
 
-	function 	EscortService( address tokenEscort ) Admin(msg.sender) {
-		_tokenEscort = tokenEscort;
-	}
+// 	function 	EscortService( address tokenEscort ) Admin(msg.sender) {
+// 		_tokenEscort = tokenEscort;
+// 	}
 	
-}
+// }

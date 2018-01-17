@@ -1,38 +1,66 @@
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.18;
 
-/* ----------------------------------------------------------------------------------------------
-* Sample fixed supply token contract
-* Enjoy. (c) BokkyPooBah 2017. The MIT Licence.
-* ----------------------------------------------------------------------------------------------
-*
-* ERC Token Standard #20 Interface
-* https://github.com/ethereum/EIPs/issues/20
-*/
-contract ERC20Interface {
+import "interface/safeMath.sol";
+import "interace/IERC20.sol";
 
-	// Get the total token supply
-	function 	totalSupply() constant returns ( uint256 totalSupply );
+contract 	ERC20 is IERC20, safeMath {
+	uint256			_totalSupply;
+	string 			_name;
+	string			_symbol;
+	uint8			_decimals;
 
-	// Get the account balance of another account with address _owner
-	function 	balanceOf( address _owner ) constant returns ( uint256 balance );
+	mapping ( address => uint256 )							_balanceOf;
+	mapping ( address => mapping ( address => uint256 ) )	_allowance;
 
-	// Send _value amount of tokens to address _to
-	function 	transfer( address _to, uint256 _value ) returns ( bool success );
+	function 	ERC20( string nameToken, string symbolToken, uint256 supply, uint8 decimals ) public {
+		uint256 	balance;
 
-	// Send _value amount of tokens from address _from to address _to
-	function 	transferFrom( address _from, address _to, uint256 _value ) returns ( bool success );
+		balance = supply * 10 ** uint256( decimals );
+		_name = nameToken;
+		_symbol = symbolToken;
+		_balanceOf[msg.sender] = balance;
+		_totalSupply = balance;
+		_decimals = decimals;
+	}	
 
-	// Allow _spender to withdraw from your account, multiple times, up to the _value amount.
-	// If this function is called again it overwrites the current allowance with _value.
-	// this function is required for some DEX functionality
-	function 	approve( address _spender, uint256 _value ) returns ( bool success );
+	function 	totalSupply() public constant returns ( uint256 ) {
+		return _totalSupply;
+	}
 
-	// Returns the amount which _spender is still allowed to withdraw from _owner
-	function 	allowance( address _owner, address _spender ) constant returns ( uint256 remaining );
+	function 	balanceOf( address user ) public constant returns ( uint256 ) {
+		return _balanceOf[user];
+	}
 
-	// Triggered when tokens are transferred.
-	event 		Transfer( address indexed _from, address indexed _to, uint256 _value );
+	function 	allowance( address owner, address spender ) public constant returns ( uint256 ) {
+		return _allowance[owner][spender];
+	}
 
-	// Triggered whenever approve(address _spender, uint256 _value) is called.
-	event 		Approval( address indexed _owner, address indexed _spender, uint256 _value );
+	function 	transfer( address to, uint amount ) public returns ( bool ) {
+		require(_balanceOf[msg.sender] >= amount);
+
+		_balanceOf[msg.sender] = sub( _balanceOf[msg.sender], amount );
+		_balanceOf[to] = add( _balanceOf[to], amount );
+
+		Transfer( msg.sender, to, amount );
+		return true;
+	}
+
+	function 	transferFrom( address from, address to, uint amount ) public returns ( bool ) {
+		require( _balanceOf[from] >= amount );
+		require( _allowance[from][msg.sender] >= amount );
+
+		_allowance[from][msg.sender] = sub( _allowance[from][msg.sender], amount );
+		_balanceOf[from] = sub( _balanceOf[from], amount );
+		_balanceOf[to] = add( _balanceOf[to], amount );
+
+		Transfer( from, to, amount );
+		return true;
+	}
+
+	function 	approve( address spender, uint256 amount ) public returns ( bool ) {
+		_allowance[msg.sender][spender] = amount;
+
+		Approval( msg.sender, spender, amount );
+		return true;
+	}
 }
