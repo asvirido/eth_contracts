@@ -20,7 +20,7 @@ contract Admin is IAdmin {
 		assertAdmin();
 
 		_admin = admin;
-		newAdmin( _admin );
+		NewAdmin( _admin );
 		return true;
 	}
 
