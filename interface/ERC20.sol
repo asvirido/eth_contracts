@@ -1,9 +1,9 @@
 pragma solidity ^0.4.18;
 
-import "interface/safeMath.sol";
-import "interace/IERC20.sol";
+import "browser/safeMath.sol";
+import "browser/IERC20";
 
-contract 	ERC20 is IERC20, safeMath {
+contract 	ERC20 is safeMath, IERC20 {
 	uint256			_totalSupply;
 	string 			_name;
 	string			_symbol;
@@ -21,7 +21,7 @@ contract 	ERC20 is IERC20, safeMath {
 		_balanceOf[msg.sender] = balance;
 		_totalSupply = balance;
 		_decimals = decimals;
-	}	
+	}
 
 	function 	totalSupply() public constant returns ( uint256 ) {
 		return _totalSupply;

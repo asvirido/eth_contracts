@@ -4,9 +4,11 @@ interface IAdmin {
 	function 	assertAdmin() private returns ( bool );
 	function 	setAdmin( address admin ) public returns ( bool );
 	function 	getAdmin() public constant returns( address admin );
+
+	event 	NewAdmin( address _admin );
 }
 
-contract Admin is IAdmin{
+contract Admin is IAdmin {
 
 	address private _admin;
 
@@ -24,6 +26,7 @@ contract Admin is IAdmin{
 		assertAdmin();
 
 		_admin = admin;
+		newAdmin( _admin );
 		return true;
 	}
 

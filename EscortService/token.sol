@@ -1,10 +1,10 @@
 pragma solidity ^0.4.18;
 
-import "interface/ERC20.sol";
-import "interface/Admin";
-
+import "browser/ERC20.sol";
+import "browser/Admin.sol";
 contract crystalLove is ERC20 {
-	function crystalLove (string nameToken, string symbolToken, uint256 supply, uint8 decimals) {
-		baseToken( nameToken, symbolToken, supply, decimals );
+	function crystalLove (string nameToken, string symbolToken, uint256 supply, uint8 decimals)
+	    public  ERC20( nameToken, symbolToken, supply, decimals ) {
+
 	}
 }
