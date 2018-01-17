@@ -16,14 +16,6 @@ contract Admin is IAdmin {
 		return true;
 	}
 
-	function 	setAdmin( address admin ) public returns ( bool ) {
-		assertAdmin();
-
-		_admin = admin;
-		NewAdmin( _admin );
-		return true;
-	}
-
 	function 	getAdmin() public constant returns( address admin ) {
 		return 	_admin;
 	}
