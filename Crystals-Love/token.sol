@@ -3,12 +3,25 @@ pragma solidity ^0.4.18;
 import "browser/ERC20.sol";
 import "browser/Admin.sol";
 
-contract crystalLove is ERC20, Admin {
-	address public _crowdSale;
+contract Deadline {
+	uint public  _deadline;
+
+	function 	Deadline( uint time ) {
+		_deadline = now + time * 1 minutes;
+	}
+
+	function 	assertTime() private {
+		if ( now <= _deadline )
+			require( false );
+	}
+}
+
+contract CrystalsLove is ERC20, Admin, Deadline {
+	address public 	_crowdSale;
 
 	event Burn( address indexed from, uint256 value );
 
-	function 	crystalLove(string nameToken, string symbolToken, uint256 supply, uint8 decimals)
+	function 	crystalLove(string nameToken, string symbolToken, uint256 supply, uint8 decimals )
 		public 	ERC20( nameToken, symbolToken, supply, decimals )
 				Admin(msg.sender) {
 	}
