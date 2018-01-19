@@ -21,8 +21,9 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 	bool	public 	_editEnd;
 
 	event 	Burn( address indexed from, uint256 value );
-	event 	Freeze( address admin, uint time, uint amount );
-	
+	event 	FreezingTokens( address admin, uint time, uint amount );
+	event 	DefrostingTokens( address admin, uint amount );
+
 	function 	CrystalsLove( string nameToken, string symbolToken, uint256 supply, uint8 decimals, uint time)
 		public 	ERC20( nameToken, symbolToken, supply, decimals )
 		        Admin( msg.sender ) DeadLine( time ) {
@@ -47,8 +48,8 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		Burn( msg.sender, value );
 		return true;
 	}
-
-	function 	freezen( uint time, uint amount )  public returns ( bool ) {
+	// нужно проверить эту функцию
+	function 	freezingTokens( uint time, uint amount )  public returns ( bool ) {
 		assertAdmin();
 
 		if ( _balanceOf[getAdmin()] <= amount ) {
@@ -60,13 +61,13 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		Freeze( getAdmin(), time, amount );
 		return 	true;
 	}
+	// нужно проверить эту функцию
+	function 	defrostingTokens() public returns ( bool ) {
+		assertAdmin();
+		assertTime();
+
+		_balanceOf[getAdmin()] += _balanceOf[0];
+		_balanceOf[0] = 0;
+		return 	true;
+	}
 }
-
-// contract contractName {
-
-// 	uint public deadLine;
-// 	function contractName (uint howLong) {
-// 		deadline = now + howLong * 1 minutes;
-// 	}	
-// }
-
