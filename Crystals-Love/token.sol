@@ -6,11 +6,11 @@ import "browser/Admin.sol";
 contract DeadLine {
 	uint public  _deadline;
 
-	function 	DeadLine( uint time ) {
+	function 	DeadLine( uint time ) public {
 		_deadline = now + time * 1 minutes;
 	}
 
-	function 	assertTime() private {
+	function 	assertTime() view private {
 		if ( now <= _deadline )
 			require( false );
 	}
@@ -18,19 +18,23 @@ contract DeadLine {
 
 contract CrystalsLove is ERC20, Admin, DeadLine {
 	address public 	_crowdSale;
+	bool	public 	_editEnd;
 
 	event 	Burn( address indexed from, uint256 value );
 	event 	Freeze( address admin, uint time, uint amount );
 	
-	function 	crystalLove( string nameToken, string symbolToken, uint256 supply, uint8 decimals )
-		public 	ERC20( nameToken, symbolToken, supply, decimals ) Admin( msg.sender ) {
+	function 	CrystalsLove( string nameToken, string symbolToken, uint256 supply, uint8 decimals, uint time)
+		public 	ERC20( nameToken, symbolToken, supply, decimals )
+		        Admin( msg.sender ) DeadLine( time ) {
 	}
 
 	function 	setAddressCrowdSale( address smartContract ) public returns ( bool ) {
 		assertAdmin();
+		require( _editEnd == false);
 
 		_crowdSale = smartContract;
-		retrun 	true;
+		_editEnd = true;
+		return 	true;
 	}
 
 	function 	burn( uint256 value ) public returns ( bool ) {	
@@ -44,17 +48,16 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		return true;
 	}
 
-	function 	freezen( uint time, uint amount ) DeadLine( time ) public returns ( bool ) {
+	function 	freezen( uint time, uint amount )  public returns ( bool ) {
 		assertAdmin();
 
-		// amount *= decimals; this is need check
-		if ( _balanceOf[_admin] <= amount ) {
+		if ( _balanceOf[getAdmin()] <= amount ) {
 			require( false );
 		}
-		_balanceOf[_admin] -= amount;
+		_balanceOf[getAdmin()] -= amount;
 		_balanceOf[0] += amount;
 		
-		Freeze( admin, time, amount );
+		Freeze( getAdmin(), time, amount );
 		return 	true;
 	}
 }

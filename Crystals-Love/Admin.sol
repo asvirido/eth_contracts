@@ -1,8 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "browser/IAdmin.sol";
-
-contract Admin is IAdmin {
+contract Admin {
 
 	address private _admin;
 
@@ -10,7 +8,7 @@ contract Admin is IAdmin {
 		_admin = admin;
 	}
 
-	function 	assertAdmin() private returns ( bool ) {
+	function 	assertAdmin() internal view returns ( bool ) {
 		if ( _admin != msg.sender )
 			require( false );
 		return true;
