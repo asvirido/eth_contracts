@@ -43,7 +43,7 @@ contract 	CrowdSale is Admin, WhiteList {
 	address public 	_tokenReward;
 
 	function 	CrowdSale( address moderator ) public Admin( msg.sender ) WhiteList( moderator ) {
-		//_tokenReward = tokenReward;
+		_tokenReward = token(tokenReward);
 	}
 
 // 	function () public payable {
