@@ -15,7 +15,7 @@ contract safeMath {
 		uint 	z;
 
 		z = x - y;
-		if ( z >= x) {
+		if ( z >= x ) {
 			require( false ); /* Overflow */
 		}
 		return 	z;
