@@ -55,8 +55,17 @@ contract 	CrowdSale is Admin, WhiteList {
 	}
 
 	function () public payable {
+		uint 	amount;
+
 		assertClosed();
-		// code
+		
+		amount = msg.value;
+		//require((amount % price) == 0);
+
+		// balanceOf[msg.sender] += amount;
+		// amountRaised += amount;
+		// tokenReward.transfer(msg.sender, amount / price);
+		//FundTransfer(msg.sender, amount, true);// code
 	}
 
 // 	function    withdrawalMoneyBack() public {
