@@ -43,8 +43,8 @@ contract 	CrowdSale is Admin, WhiteList {
 	token 	public 	_tokenReward;
 	uint 	public	_price;
 	uint 	public	_amountRaised;
-    bool    public 	_crowdsaleClosed;
-    bool    public 	_crowdsaleSuccess;
+    bool    public 	_crowdSaleClosed;
+    bool    public 	_crowdSaleSuccess;
 
 	mapping( address => uint ) public 	_balanceOf;
 
@@ -55,6 +55,7 @@ contract 	CrowdSale is Admin, WhiteList {
 	}
 
 	function () public payable {
+		assertClosed();
 		// code
 	}
 
@@ -71,5 +72,17 @@ contract 	CrowdSale is Admin, WhiteList {
 
 		amount = _tokenReward.balanceOf( this );
 		_tokenReward.burn( amount );
+	}
+	// need test
+	function 	assertClosed() view private {
+		if ( _crowdSaleClosed == false ) {
+			require( false );
+		}
+	}
+	// need test
+	function 	assertSuccess() view private {
+		if ( _crowdSaleSuccess == false ) {
+			require( false );
+		}
 	}
 }
