@@ -58,10 +58,10 @@ contract 	CrowdSale is Admin, WhiteList {
 // 		// code
 // 	}
 
-// 	function 	burnToken() private {
-// 		uint 	amount;
+	function 	burnToken() private {
+		uint 	amount;
 
-// 		amount = _tokenReward.balanceOf(this);
-// 		_tokenReward.burn(amount);
-// 	}
+		amount = _tokenReward.balanceOf( this );
+		_tokenReward.burn( amount );
+	}
 }
