@@ -8,7 +8,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 	address public 	_crowdSale;
 	bool	public 	_editEnd;
 
-	event 	Burn( address indexed from, uint256 value );
+	event 	Burn( address indexed from, uint value );
 	event 	FreezingTokens( address admin, uint amount );
 	event 	DefrostingTokens( address admin, uint amount );
 
@@ -19,7 +19,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 	*	"NameToken","SSS","1000","18","5"
 	*	construct for remix solidity
 	*/ 
-	function 	CrystalsLove( string nameToken, string symbolToken, uint256 supply, uint8 decimals, uint time)
+	function 	CrystalsLove( string nameToken, string symbolToken, uint supply, uint8 decimals, uint time)
 		public 	ERC20( nameToken, symbolToken, supply, decimals )
 		        Admin( msg.sender ) DeadLine( time ) {
 	}
@@ -37,7 +37,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 	* 	This is function need for burn tokens crowdSale.
 	* 	@param uint amount tokens for burn.
 	*/
-	function 	burn( uint amount ) public returns ( bool ) {	
+	function 	burn( uint amount ) public returns ( bool ) {
 		require( _balanceOf[msg.sender] >= amount );
 		require( msg.sender == _crowdSale );
 		
@@ -60,6 +60,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		FreezingTokens( getAdmin(), amount );
 		return 	true;
 	}
+
 	function 	defrostingTokens() public returns ( bool ) {
 		uint 	amount;
 
@@ -74,7 +75,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		return 	true;
 	}
 
-	function   getNow()public constant returns(uint ) {
+	function   getTime() public constant returns( uint ) {
 		return now;
 	}
 }

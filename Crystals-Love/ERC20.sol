@@ -5,18 +5,18 @@ import "browser/safeMath.sol";
 import "browser/IERC20.sol";
 
 contract 	ERC20 is safeMath, IERC20 {
-	uint256	public _totalSupply;
+	uint	public _totalSupply;
 	string 	public	_name;
 	string	public	_symbol;
 	uint8	public	_decimals;
 
-	mapping ( address => uint256 )							public _balanceOf;
-	mapping ( address => mapping ( address => uint256 ) )	public _allowance;
+	mapping ( address => uint )							public _balanceOf;
+	mapping ( address => mapping ( address => uint ) )	public _allowance;
 
-	function 	ERC20( string nameToken, string symbolToken, uint256 supply, uint8 decimals ) public {
-		uint256 	balance;
+	function 	ERC20( string nameToken, string symbolToken, uint supply, uint8 decimals ) public {
+		uint 	balance;
 
-		balance = supply * 10 ** uint256( decimals );
+		balance = supply * 10 ** uint( decimals );
 		_name = nameToken;
 		_symbol = symbolToken;
 		_balanceOf[msg.sender] = balance;
@@ -24,15 +24,15 @@ contract 	ERC20 is safeMath, IERC20 {
 		_decimals = decimals;
 	}
 
-	function 	totalSupply() public constant returns ( uint256 ) {
+	function 	totalSupply() public constant returns ( uint ) {
 		return _totalSupply;
 	}
 
-	function 	balanceOf( address user ) public constant returns ( uint256 ) {
+	function 	balanceOf( address user ) public constant returns ( uint ) {
 		return _balanceOf[user];
 	}
 
-	function 	allowance( address owner, address spender ) public constant returns ( uint256 ) {
+	function 	allowance( address owner, address spender ) public constant returns ( uint ) {
 		return _allowance[owner][spender];
 	}
 
@@ -58,7 +58,7 @@ contract 	ERC20 is safeMath, IERC20 {
 		return true;
 	}
 
-	function 	approve( address spender, uint256 amount ) public returns ( bool ) {
+	function 	approve( address spender, uint amount ) public returns ( bool ) {
 		_allowance[msg.sender][spender] = amount;
 
 		Approval( msg.sender, spender, amount );
