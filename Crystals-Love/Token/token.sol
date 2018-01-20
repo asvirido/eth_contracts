@@ -7,13 +7,11 @@ import 	"browser/DeadLine.sol";
 contract CrystalsLove is ERC20, Admin, DeadLine {
 	address public 	_crowdSale;
 	bool	public 	_editEnd;
+	uint 	public 	_freezingTokens;
 
 	event 	Burn( address indexed from, uint value );
 	event 	FreezingTokens( address admin, uint amount );
 	event 	DefrostingTokens( address admin, uint amount );
-
-
-	uint public _freezingTokens;
 
 	/* 
 	*	"NameToken","SSS","1000","18","5"
@@ -23,7 +21,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		public 	ERC20( nameToken, symbolToken, supply, decimals )
 		        Admin( msg.sender ) DeadLine( time ) {
 	}
-
+	/* + */
 	function 	setAddressCrowdSale( address smartContract ) public returns ( bool ) {
 		assertAdmin();
 		require( _editEnd == false );
@@ -33,7 +31,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		return 	true;
 	}
 
-	/*
+	/* 	+
 	* 	This is function need for burn tokens crowdSale.
 	* 	@param uint amount tokens for burn.
 	*/
@@ -47,7 +45,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		Burn( msg.sender, amount );
 		return true;
 	}
-
+	/* + */	
 	function 	freezingTokens( uint amount )  public returns ( bool ) {
 		assertAdmin();
 
@@ -60,7 +58,7 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 		FreezingTokens( getAdmin(), amount );
 		return 	true;
 	}
-
+	/* + */
 	function 	defrostingTokens() public returns ( bool ) {
 		uint 	amount;
 
