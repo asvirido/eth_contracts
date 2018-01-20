@@ -39,7 +39,7 @@ contract 	WhiteList {
 	}
 }
 
-contract 	CrowdSale is Admin, WhiteList {
+contract 	CrowdSale is Admin, WhiteList, SafeMath {
 	token 	public 	_tokenReward;
 	uint 	public	_price;
 	uint 	public	_amountRaised;
@@ -60,11 +60,9 @@ contract 	CrowdSale is Admin, WhiteList {
 		assertClosed();
 		
 		amount = msg.value;
-		//require((amount % price) == 0);
-
-		// balanceOf[msg.sender] += amount;
-		// amountRaised += amount;
-		// tokenReward.transfer(msg.sender, amount / price);
+		_balanceOf[msg.sender] = add( _balanceOf[msg.sender], amount );
+		_amountRaised = add( _amountRaised, amount );
+		_tokenReward.transfer( msg.sender, amount / _price );
 		//FundTransfer(msg.sender, amount, true);// code
 	}
 
