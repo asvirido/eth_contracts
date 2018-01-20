@@ -42,7 +42,7 @@ contract 	WhiteList {
 contract 	CrowdSale is Admin, WhiteList {
 	address public 	_tokenReward;
 
-	function 	CrowdSale( address moderator ) public Admin( msg.sender ) WhiteList( moderator ) {
+	function 	CrowdSale( address tokenReward, address moderator ) public Admin( msg.sender ) WhiteList( moderator ) {
 		_tokenReward = token(tokenReward);
 	}
 
