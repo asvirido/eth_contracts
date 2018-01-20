@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "browser/ERC20.sol";
-import "browser/Admin.sol";
-import "browser/DeadLine.sol";
+import 	"browser/ERC20.sol";
+import 	"browser/Admin.sol";
+import 	"browser/DeadLine.sol";
 
 contract CrystalsLove is ERC20, Admin, DeadLine {
 	address public 	_crowdSale;
@@ -19,14 +19,14 @@ contract CrystalsLove is ERC20, Admin, DeadLine {
 	*	"NameToken","SSS","1000","18","5"
 	*	construct for remix solidity
 	*/ 
-	function 	CrystalsLove( string nameToken, string symbolToken, uint supply, uint8 decimals, uint time)
+	function 	CrystalsLove( string nameToken, string symbolToken, uint supply, uint8 decimals, uint time )
 		public 	ERC20( nameToken, symbolToken, supply, decimals )
 		        Admin( msg.sender ) DeadLine( time ) {
 	}
 
 	function 	setAddressCrowdSale( address smartContract ) public returns ( bool ) {
 		assertAdmin();
-		require( _editEnd == false);
+		require( _editEnd == false );
 
 		_crowdSale = smartContract;
 		_editEnd = true;
