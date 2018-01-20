@@ -5,13 +5,13 @@ import "browser/safeMath.sol";
 import "browser/IERC20.sol";
 
 contract 	ERC20 is safeMath, IERC20 {
-	uint256			_totalSupply;
-	string 			_name;
-	string			_symbol;
-	uint8			_decimals;
+	uint256	public _totalSupply;
+	string 	public	_name;
+	string	public	_symbol;
+	uint8	public	_decimals;
 
-	mapping ( address => uint256 )							_balanceOf;
-	mapping ( address => mapping ( address => uint256 ) )	_allowance;
+	mapping ( address => uint256 )							public _balanceOf;
+	mapping ( address => mapping ( address => uint256 ) )	public _allowance;
 
 	function 	ERC20( string nameToken, string symbolToken, uint256 supply, uint8 decimals ) public {
 		uint256 	balance;
