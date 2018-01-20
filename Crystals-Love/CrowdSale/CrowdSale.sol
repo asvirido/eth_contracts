@@ -50,7 +50,7 @@ contract 	CrowdSale is Admin, WhiteList {
 
 	function 	CrowdSale( address addressOfTokenUsedAsReward, address moderator, uint price )
 		public 	Admin( msg.sender ) WhiteList( moderator ) {
-		_tokenRe1ward = token( addressOfTokenUsedAsReward );
+		_tokenReward = token( addressOfTokenUsedAsReward );
 		_price = price;
 	}
 
