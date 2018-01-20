@@ -10,29 +10,29 @@ interface 	token {
 }
 
 contract 	WhiteList {
-	address public _moderator;
+	address public	_moderator;
 	
 	mapping ( address => bool ) internal _listAuthorizedUser;
 	
 	function 	WhiteList( address moderator ) public {
 		_moderator = moderator;
 	}
-
+	// need test
 	function 	setAuthorizeUser( address user ) public {	
 		assertModerator();
 
 		_listAuthorizedUser[user] = true;
 	}
-
+	// need test
 	function 	getAuthorizeUser( address user ) public constant returns( bool ) {
 		return 	_listAuthorizedUser[user];
 	}
-
+	// need test
 	function 	assertModerator() view internal {
 		if ( msg.sender != _moderator )
 			require( false );
 	}
-
+	// need test
 	function 	assertUser( address user ) view internal {
 		if ( _listAuthorizedUser[user] == false )
 			require( false );
@@ -40,15 +40,23 @@ contract 	WhiteList {
 }
 
 contract 	CrowdSale is Admin, WhiteList {
-	token public 	_tokenReward;
+	token 	public 	_tokenReward;
+	uint 	public	_price;
+	uint 	public	_amountRaised;
+    bool    public 	_crowdsaleClosed;
+    bool    public 	_crowdsaleSuccess;
 
-	function 	CrowdSale( address tokenReward, address moderator ) public Admin( msg.sender ) WhiteList( moderator ) {
-		_tokenReward = token(tokenReward);
+	mapping( address => uint ) public 	_balanceOf;
+
+	function 	CrowdSale( address addressOfTokenUsedAsReward, address moderator, uint price )
+		public 	Admin( msg.sender ) WhiteList( moderator ) {
+		_tokenRe1ward = token( addressOfTokenUsedAsReward );
+		_price = price;
 	}
 
-// 	function () public payable {
-// 		// code
-// 	}
+	function () public payable {
+		// code
+	}
 
 // 	function    withdrawalMoneyBack() public {
 // 		// code
@@ -57,7 +65,7 @@ contract 	CrowdSale is Admin, WhiteList {
 // 	function 	withdrawalAdmin() public {
 // 		// code
 // 	}
-
+	// need test
 	function 	burnToken() private {
 		uint 	amount;
 

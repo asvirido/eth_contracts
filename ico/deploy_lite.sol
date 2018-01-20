@@ -8,8 +8,8 @@ interface token {
 
 contract Crowdsale {
     address     public beneficiary;
+    
     uint        public amountRaised;
-    uint        public deadline;
     uint        public price;
     token       public tokenReward;
 
