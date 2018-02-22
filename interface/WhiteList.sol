@@ -26,7 +26,7 @@ contract 	WhiteList is Admin {
 	/* + */
 	function 	WhiteList( address admin ) public Admin( admin ) { }
 	/* + */
-	function 	setAuthorizeUser( address user ) public {	
+	function 	setAuthorizeUser( address user ) public {
 		assertModerator();
 		_listAuthorizedUser[user] = true;
 	}

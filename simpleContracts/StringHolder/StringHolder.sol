@@ -1,15 +1,15 @@
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.18;
 
 contract StringHolder {
 
 	string globalText;
 
-	function setGlobalText(string _text) {
+	function 	setGlobalText(string _text) public {
 		globalText = _text;
 	}
 
-	function getGlobalText() constant returns (string) {
+	function 	getGlobalText() public constant returns ( string ) {
 		return globalText;
 	}
-	
+
 }
