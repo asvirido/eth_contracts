@@ -19,7 +19,7 @@ contract StrongBox is SafeMath {
 	mapping ( bytes32 => mapping ( address => uint ) ) _tokens;
 	/* - */
 	function () public payable {
-		require( false ); */
+		require( false );
 	}
 	/*
 	 	Как передавать эфир и принимать аргументы одновременно. Нужно найти решение для работы этого смарт-контракта.
