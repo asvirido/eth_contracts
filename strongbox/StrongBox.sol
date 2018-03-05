@@ -16,19 +16,21 @@ contract SafeMath {
 }
 
 contract StrongBox is SafeMath {
-	mapping ( bytes32 => mapping ( address => uint ) ) _tokens;
+	mapping ( bytes32 => mapping ( address => uint ) ) public _tokens;
+	
 	/* - */
 	function () public payable {
 		require( false );
 	}
+	
 	/*
-	 	Как передавать эфир и принимать аргументы одновременно. Нужно найти решение для работы этого смарт-контракта.
+	*	Remix doesnt work. Work only myetherwallet 
 	*/
 	function 	depositEth( bytes32 hash ) public payable {
 		assertQuantity( msg.value );
 		_tokens[hash][0] = safeAdd( _tokens[hash][0], msg.value );
 	}
-	/* - */
+	/* + */
 	function 	withdrawEth( string key ) public {
 		bytes32 	hash;
 		uint		amount;
