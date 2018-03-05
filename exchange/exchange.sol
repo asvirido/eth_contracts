@@ -56,7 +56,7 @@ contract Exchange is SafeMath, Admin {
 		tokens[token][msg.sender] = safeSub( tokens[token][msg.sender], amount ); // уязвимость двойного входа?
 	    Withdraw( token, msg.sender, amount, tokens[token][msg.sender] );
 	}
-	
+
 	function 	order( address tokenTake, uint amountTake, address tokenMake, uint amountMake, uint nonce ) public {
 		bytes32 	hash;
 
@@ -65,9 +65,9 @@ contract Exchange is SafeMath, Admin {
 		assertCompareBalance( amountMake, tokens[tokenMake][msg.sender] );
 		if ( orderEnd == true )
 			assert( false );
-		
+
 		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
-		
+
 		orders[msg.sender][hash] = true;
 		tokens[tokenMake][msg.sender] = safeSub( tokens[tokenMake][msg.sender], amountMake );
 		ordersBalance[hash][msg.sender] = amountMake;
@@ -89,7 +89,7 @@ contract Exchange is SafeMath, Admin {
 		OrderCancel( msg.sender, tokenTake, amountTake, tokenMake, amountMake, nonce );
 	}
 
-	function 	trade( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce, address makeAddress, uint quantityTake ) public { 
+	function 	trade( address tokenTake, address tokenMake, uint amountTake, uint amountMake, uint nonce, address makeAddress, uint quantityTake ) public {
 
 		bytes32 	hash;
 		uint 		amountGiveMake;
@@ -98,10 +98,10 @@ contract Exchange is SafeMath, Admin {
 
 		hash = sha256( this, tokenTake, tokenMake, amountTake, amountMake, nonce );
 		assertOrders( makeAddress, hash );
-		
+
 		amountGiveMake = safeMul( amountMake, quantityTake ) / amountTake;
 		assertCompareBalance ( amountGiveMake, ordersBalance[hash][makeAddress] );
-		
+
 		tradeBalances( tokenTake, tokenMake, amountTake, amountMake, makeAddress, quantityTake, hash);
 	}
 
@@ -124,26 +124,26 @@ contract Exchange is SafeMath, Admin {
 		Trade( makeAddress, tokenMake, amountGiveMake, takeAddress, tokenTake, quantityTake, feeTakeXfer, ordersBalance[hash][makeAddress] );
 	}
 
-	function 	assertQuantity( uint amount ) private {
+	function 	assertQuantity( uint amount ) private pure {
 		if ( amount == 0 ) {
 			assert( false );
 		}
 	}
 
-	function 	assertToken( address token ) private { 
+	function 	assertToken( address token ) private pure {
 		if ( token == 0 ) {
 			assert( false );
 		}
 	}
 
 
-	function 	assertOrders( address makeAddress, bytes32 hash ) private {
+	function 	assertOrders( address makeAddress, bytes32 hash ) private pure {
 		if ( orders[makeAddress][hash] == false ) {
 			assert( false );
 		}
 	}
 
-	function 	assertCompareBalance( uint a, uint b ) private {
+	function 	assertCompareBalance( uint a, uint b ) private pure {
 		if ( a > b ) {
 			assert( false );
 		}
