@@ -2,7 +2,7 @@
 pragma solidity ^0.4.16;
 
 interface token {
-	function 	transfer( address receiver, uint amount );
+	function getTrueUse(address user) public view returns(bool);
 }
 
 contract Crowdsale {
