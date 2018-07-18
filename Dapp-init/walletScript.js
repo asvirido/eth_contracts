@@ -1,3 +1,7 @@
+/*
+* for geth
+*/
+
 var sizeWallet = 10;
 if (web3.eth.accounts.length < sizeWallet) {
 	var i = web3.eth.accounts.length;
