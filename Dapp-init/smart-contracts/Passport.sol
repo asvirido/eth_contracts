@@ -37,7 +37,7 @@ contract Passport {
 		return (_users[user].age);
 	}
 
-	function getTrueUse(address user) public view returns(bool) {
+	function getTrueUser(address user) public view returns(bool) {
 		return (_users[user].personId != 0);
 	}
 

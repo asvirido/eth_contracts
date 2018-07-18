@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 contract Passport {
-	function getTrueUse(address user) public view returns(bool);
+	function getTrueUser(address user) public view returns(bool);
 }
 
 contract Election {
@@ -32,7 +32,7 @@ contract Election {
 	function votingForAPosition(uint8 position) public {
 		if (_vote[msg.sender] == true || _endVoting == true) {
 			revert();
-		} else if (_passportContract.getTrueUse(msg.sender) == false) {
+		} else if (_passportContract.getTrueUser(msg.sender) == false) {
 			revert();
 		} else if (position < 0 || position > _amountPosition) {
 			revert();
