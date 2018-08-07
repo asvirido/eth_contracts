@@ -106,11 +106,11 @@ contract 	Admins is Ownable {
 
 	// check
 	function	changeStatusModerator(address user, bool status) public notNullAddress(user) onlyOwner() {
-		_moderator[user] = status;
+		_moderators[user] = status;
 	}
 
 	function 	getModerator(address user) public constant returns (bool) {
-		return 	_moderator[user];
+		return 	_moderators[user];
 	}
 
 	/**
@@ -118,7 +118,7 @@ contract 	Admins is Ownable {
 	*/
 	// check
 	modifier onlyModerator() {
-		require(_moderator[msg.sender] == true);
+		require(_moderators[msg.sender] == true);
 		_;
 	}
 
@@ -131,7 +131,9 @@ contract 	Admins is Ownable {
 	}
 }
 
-contract BetsMatch is Ownable {
+contract BetsMatch is Admins {
+	using SafeMath for uint;
+
 	address public _oldSmartContract;
 	string public _version;
 
@@ -148,8 +150,8 @@ contract BetsMatch is Ownable {
 		_version = "0.01";
 	}
 
-	function 	createBet() public {
-		// 
-	// }
+	// function 	createBet() public {
+	// 	// 
+	// // }
 	
 }
