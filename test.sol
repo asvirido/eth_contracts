@@ -94,6 +94,43 @@ contract Ownable {
 	}
 }
 
+contract 	Admins is Ownable {
+	
+	mapping(address => bool) internal	_moderators;
+
+	/**
+	* @dev Construct.
+	*/
+	constructor() public {
+	}
+
+	// check
+	function	changeStatusModerator(address user, bool status) public notNullAddress(user) onlyOwner() {
+		_moderator[user] = status;
+	}
+
+	function 	getModerator(address user) public constant returns (bool) {
+		return 	_moderator[user];
+	}
+
+	/**
+	* @dev Throws if called by any account other than the moderator.
+	*/
+	// check
+	modifier onlyModerator() {
+		require(_moderator[msg.sender] == true);
+		_;
+	}
+
+	/**
+	* @dev Throws if called by null account
+	*/
+	modifier notNullAddress(address user) {
+		require(user != address(0x0));
+		_;
+	}
+}
+
 contract BetsMatch is Ownable {
 	address public _oldSmartContract;
 	string public _version;
@@ -101,6 +138,7 @@ contract BetsMatch is Ownable {
 	struct Bet {
 		address player;
 		uint 	amount;
+		uint 	coef; // коефициент не может быть float. нужно подумать про это
 	}
 	
 	mapping(bytes32 => Bet) _bets;
@@ -110,7 +148,7 @@ contract BetsMatch is Ownable {
 		_version = "0.01";
 	}
 
-	// function 	myFunction() returns(bool res) internal {
+	function 	createBet() public {
 		// 
 	// }
 	
