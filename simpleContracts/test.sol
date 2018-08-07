@@ -80,6 +80,7 @@ contract Ownable {
 	* @param newOwner The address to transfer ownership to.
 	*/
 	function transferOwnership(address newOwner) public onlyOwner {
+		require(newOwner != _owner);
 		_transferOwnership(newOwner);
 	}
 
@@ -98,25 +99,31 @@ contract 	Admins is Ownable {
 	
 	mapping(address => bool) internal	_moderators;
 
+	address public _prevSmartContract;
+	address public _nextSmartContract;
+	string 	public _version;
+
 	/**
 	* @dev Construct.
 	*/
 	constructor() public {
+		_prevSmartContract = address(0x0);
+		_nextSmartContract = address(0x0);
+		_version = "0.01";
+		_moderators[msg.sender] = true;
 	}
 
-	// check
 	function	changeStatusModerator(address user, bool status) public notNullAddress(user) onlyOwner() {
 		_moderators[user] = status;
 	}
-
-	function 	getModerator(address user) public constant returns (bool) {
-		return 	_moderators[user];
+	
+	function 	setNextSmartContract(address smartContract) public  notNullAddress(smartContract) onlyOwner() {
+		_nextSmartContract = smartContract;
 	}
 
 	/**
 	* @dev Throws if called by any account other than the moderator.
 	*/
-	// check
 	modifier onlyModerator() {
 		require(_moderators[msg.sender] == true);
 		_;
@@ -124,34 +131,41 @@ contract 	Admins is Ownable {
 
 	/**
 	* @dev Throws if called by null account
+	* @param user The address to check at zero address
 	*/
 	modifier notNullAddress(address user) {
 		require(user != address(0x0));
 		_;
+	}
+
+	/**
+	* 	gets methods
+	*	@param user The address to get status user
+	*/
+	function 	getStatusModerator(address user) public constant returns (bool) {
+		return 	_moderators[user];
 	}
 }
 
 contract BetsMatch is Admins {
 	using SafeMath for uint;
 
-	address public _oldSmartContract;
-	string public _version;
-
 	struct Bet {
 		address player;
+		string 	nameEvent; // Чем меньше символов тем лучше. Меньше газа. Можно записать только в анг буквах
 		uint 	amount;
+		uint 	betDeadLineCancel;
 		uint 	coef; // коефициент не может быть float. нужно подумать про это
 	}
 	
+	event createBet(bytes32 hashBet, string nameEvent);
 	mapping(bytes32 => Bet) _bets;
-
+	
 	constructor() public {
-		_oldSmartContract = 0x0;
-		_version = "0.01";
 	}
 
-	// function 	createBet() public {
-	// 	// 
-	// // }
+	function 	createBet(uint betDeadLineCancel) public onlyModerator() {
+		// some code
+	}
 	
 }
