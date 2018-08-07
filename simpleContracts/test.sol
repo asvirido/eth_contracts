@@ -97,7 +97,7 @@ contract Ownable {
 
 contract 	Admins is Ownable {
 	
-	mapping(address => bool) internal	_moderators;
+	mapping(address => bool) internal _moderators;
 
 	address public _prevSmartContract;
 	address public _nextSmartContract;
@@ -156,7 +156,7 @@ contract 	Admins is Ownable {
 	*	@param user The address to get status user
 	*/
 	function 	getStatusModerator(address user) public constant returns (bool) {
-		return 	_moderators[user];
+		return 	(_moderators[user]);
 	}
 }
 
@@ -177,7 +177,6 @@ contract BetsMatch is Admins {
 	constructor() public {
 	}
 
-	// I need to find information. Можно ли при создание заявки отправлять деньги сразу в виде эфира
 	function 	createBet(
 		bytes32 hashBet,
 		string nameEvent,
@@ -187,10 +186,10 @@ contract BetsMatch is Admins {
 		uint coef
 	)
 		public
+		payable
 		onlyModerator()
 		notNullAddress(player)
 		notZeroAmountEther()
-		payable
 	{
 		require(_bets[hashBet].player == address(0x0));	
 	}
@@ -199,13 +198,14 @@ contract BetsMatch is Admins {
 		bytes32 hashBet
 	)
 		public
+		payable
 		notZeroAmountEther()
 	{
-		require (_bets[hashBet].player == msg.sender);	
+		require(_bets[hashBet].player == msg.sender);
 	}
 
 	modifier 	notZeroAmountEther() { 
-		require (msg.value != 0); 
+		require(msg.value != 0);
 		_; 
 	}
 }
