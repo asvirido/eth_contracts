@@ -113,11 +113,24 @@ contract 	Admins is Ownable {
 		_moderators[msg.sender] = true;
 	}
 
-	function	changeStatusModerator(address user, bool status) public notNullAddress(user) onlyOwner() {
+	function	changeStatusModerator(
+		address user,
+		bool status
+	)
+		public
+		notNullAddress(user)
+		onlyOwner()
+	{
 		_moderators[user] = status;
 	}
 	
-	function 	setNextSmartContract(address smartContract) public  notNullAddress(smartContract) onlyOwner() {
+	function 	setNextSmartContract(
+		address smartContract
+	)
+		public
+		notNullAddress(smartContract)
+		onlyOwner()
+	{
 		_nextSmartContract = smartContract;
 	}
 
@@ -154,7 +167,7 @@ contract BetsMatch is Admins {
 		address player;
 		string 	nameEvent; // Чем меньше символов тем лучше. Меньше газа. Можно записать только в анг буквах
 		uint 	amount;
-		uint 	betDeadLineCancel;
+		uint 	minutesDeadLineCancel;
 		uint 	coef; // коефициент не может быть float. нужно подумать про это
 	}
 	
@@ -164,8 +177,35 @@ contract BetsMatch is Admins {
 	constructor() public {
 	}
 
-	function 	createBet(uint betDeadLineCancel) public onlyModerator() {
-		// some code
+	// I need to find information. Можно ли при создание заявки отправлять деньги сразу в виде эфира
+	function 	createBet(
+		bytes32 hashBet,
+		string nameEvent,
+		address player,
+		uint minutesDeadLineCancel,
+		uint amount;
+		uint coef
+	)
+		public
+		onlyModerator()
+		notNullAddress(player)
+		notZeroAmountEther()
+		payable
+	{
+		require(_bets[hashBet].player == address(0x0));	
 	}
-	
+
+	function 	acceptBet(
+		bytes32 hashBet
+	)
+		public
+		notZeroAmountEther()
+	{
+		require (_bets[hashBet].player == msg.sender);	
+	}
+
+	modifier 	notZeroAmountEther() { 
+		require (msg.value != 0); 
+		_; 
+	}
 }
