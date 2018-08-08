@@ -177,6 +177,7 @@ contract BetsMatch is Admins {
 		uint    amountPlayer;
 		uint8 	coef; /* float don't available */
 		uint 	minutesDeadlineCancel;
+		address winner;
 	}
 	
 	event CreateBet(
@@ -246,7 +247,8 @@ contract BetsMatch is Admins {
 			amountBookmaker, /* wei */
 			0, /* wei amountPlayer */ // msg.value / coef 
 			coef, /* x2 x4 etc */
-			minutesDeadlineCancel
+			minutesDeadlineCancel,
+			0
 		);
 		_bets[hashBet] = bet;
 		emit CreateBet(
@@ -271,6 +273,7 @@ contract BetsMatch is Admins {
 		onlyForPlayerOfThisBet(hashBet)
 	{
 		require(_bets[hashBet].player == msg.sender);
+		require(_bets[hashBet].winner == address(0x0));
 		require(_bets[hashBet].amountPlayer == 0);
 		require(_bets[hashBet].amountBookmaker == msg.value.mul(_bets[hashBet].coef));
 
@@ -331,16 +334,19 @@ contract BetsMatch is Admins {
 		public
 		onlyModerator()
 	{	
+		require(_bets[hashBet].winner == address(0x0));
 		address winner;
 		uint amountReward = _bets[hashBet].amountBookmaker.add(_bets[hashBet].amountPlayer);
 		uint fee = 0;
-
+		_bets[hashBet].amountBookmaker = 0;
+		_bets[hashBet].amountPlayer = 0;
 		if (status == true) {
 			winner = _bets[hashBet].player;
 		}
 		else {
 			winner = msg.sender;
 		}
+		_bets[hashBet].winner = winner;
 		withdrawEth(amountReward, winner);
 		emit RecordingResultsOfBet(
 			hashBet,
