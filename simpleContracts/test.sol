@@ -99,9 +99,14 @@ contract 	Admins is Ownable {
 	
 	mapping(address => bool) internal _moderators;
 
-	address public _prevSmartContract;
-	address public _nextSmartContract;
-	string 	public _version;
+	// address public _prevSmartContract;
+	// address public _nextSmartContract;
+	// string 	public _version;
+
+	// for test
+	address private _prevSmartContract;
+	address private _nextSmartContract;
+	string 	private _version; 
 
 	/**
 	* @dev Construct.
@@ -163,46 +168,53 @@ contract 	Admins is Ownable {
 contract BetsMatch is Admins {
 	using SafeMath for uint;
 
+	mapping(bytes32 => Bet) public _bets;
+
 	struct Bet {
 		address player;
-		string 	nameEvent; // Чем меньше символов тем лучше. Меньше газа. Можно записать только в анг буквах
-		uint 	amount;
+		string 	nameEvent; /* only english string*/
+		uint 	amountBookmaker;
+		uint    amountPlayer;
+		uint8 	coef; /* float don't available */
 		uint 	minutesDeadlineCancel;
-		uint8 	coef; // коефициент не может быть float. нужно подумать про это
 	}
 	
 	event CreateBet(
 		bytes32 hashBet,
 		string nameEvent,
-		address user,
+		address player,
 		uint amountBookmaker,
 		uint8 coef,
 		uint minutesDeadlineCancel
 	);
+	
 	event AcceptBet(
 		bytes32 hashBet,
 		string nameEvent,
-		address user,
+		address player,
 		uint amountBookmaker,
 		uint amountPlayer,
 		uint8 coef,
 		uint minutesDeadlineCancel
 	);
+	
 	event CancelBet(
 		bytes32 hashBet,
 		string nameEvent,
-		address user,
+		address player,
 		uint amountBookmaker,
 		uint amountPlayer,
 		uint8 coef,
 		uint minutesDeadlineCancel
 	);
-
-	mapping(bytes32 => Bet) _bets;
 	
 	constructor() public {
+		// some code
 	}
 
+	/**
+	* some comment
+	*/
 	function 	createBet(
 		bytes32 hashBet,
 		string nameEvent,
@@ -219,37 +231,69 @@ contract BetsMatch is Admins {
 		require(_bets[hashBet].player == address(0x0));	
 		uint  amountBookmaker = msg.value;
 
-		Bet memory bet = new Bet(
+		Bet memory bet = Bet(
 			player,
-			nameEvent,
-			amountBookmaker, // in wei
-			0, // amountPlayer // in wei
-			0, // time
-			coef // x2 x4 etc ..
+			nameEvent, /* only English */
+			amountBookmaker, /* wei */
+			0, /* wei amountPlayer */
+			coef, /* x2 x4 etc */
+			minutesDeadlineCancel
 		);
 		_bets[hashBet] = bet;
-		// emit CreateBet(hashBet, nameEvent, user, some params .... );
+		emit CreateBet(
+			hashBet,
+			nameEvent,
+			player,
+			amountBookmaker,
+			coef,
+			minutesDeadlineCancel
+		);
 	}
 
+	/**
+	* some comment
+	*/
 	function 	acceptBet(
 		bytes32 hashBet
 	)
 		public
 		payable
 		notZeroAmountEther()
-		onlyForPlayerOfThisBet()
+		onlyForPlayerOfThisBet(hashBet)
 	{
-		// uint amount = msg.value;
 		require(_bets[hashBet].player == msg.sender);
-		require(_bets[hashBet].amount == msg.value.div(coef));
+		require(_bets[hashBet].amountPlayer == msg.value.div(_bets[hashBet].coef));
 
 		_bets[hashBet].amountPlayer = msg.value;
-		// emit AcceptBet( some params .... );
+		emit AcceptBet(
+			hashBet,
+			_bets[hashBet].nameEvent,
+			msg.sender,
+			_bets[hashBet].amountBookmaker,
+			msg.value,
+			_bets[hashBet].coef,
+			_bets[hashBet].minutesDeadlineCancel
+		);
 	}
 
-	function 	cancelBet(bytes32 hashBet) public onlyForPlayerOfThisBet() {
-		// somecode
-		// emit CancelBet( some params ..... );
+	/**
+	* some comment
+	*/
+	function 	cancelBet(
+		bytes32 hashBet
+	)
+		public
+		onlyForPlayerOfThisBet(hashBet)
+	{
+		emit CancelBet(
+			hashBet,
+			_bets[hashBet].nameEvent,
+			_bets[hashBet].player,
+			_bets[hashBet].amountBookmaker,
+			_bets[hashBet].amountPlayer,
+			_bets[hashBet].coef,
+			_bets[hashBet].minutesDeadlineCancel
+		);
 	}
 
 	modifier 	notZeroAmountEther() { 
@@ -257,8 +301,8 @@ contract BetsMatch is Admins {
 		_;
 	}
 
-	modifier	onlyForPlayerOfThisBet(uint _time) { 
-		require (now >= _time); 
+	modifier	onlyForPlayerOfThisBet(bytes32 hashBet) { 
+		require (_bets[hashBet].player == msg.sender);
 		_;
 	}
 
