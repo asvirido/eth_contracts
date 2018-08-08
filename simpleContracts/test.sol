@@ -331,16 +331,17 @@ contract BetsMatch is Admins {
 		public
 		onlyModerator()
 	{	
-		// address winner = msg.sender;
+		address winner;
 		uint amountReward = _bets[hashBet].amountBookmaker.add(_bets[hashBet].amountPlayer);
 		uint fee = 0;
 
 		if (status == true) {
-			withdrawEth(amountReward, _bets[hashBet].player);
+			winner = _bets[hashBet].player;
 		}
 		else {
-			withdrawEth(amountReward, msg.sender);
+			winner = msg.sender;
 		}
+		withdrawEth(amountReward, winner);
 		emit RecordingResultsOfBet(
 			hashBet,
 			_bets[hashBet].nameEvent,
@@ -349,10 +350,6 @@ contract BetsMatch is Admins {
 			fee
 		);
 	}
-	
-	// function 	sendReward(bool status, ) internal {
-		
-	// }
 	
 
 	modifier 	notZeroAmountEther() { 
