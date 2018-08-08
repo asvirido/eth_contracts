@@ -167,11 +167,37 @@ contract BetsMatch is Admins {
 		address player;
 		string 	nameEvent; // Чем меньше символов тем лучше. Меньше газа. Можно записать только в анг буквах
 		uint 	amount;
-		uint 	minutesDeadLineCancel;
-		uint 	coef; // коефициент не может быть float. нужно подумать про это
+		uint 	minutesDeadlineCancel;
+		uint8 	coef; // коефициент не может быть float. нужно подумать про это
 	}
 	
-	event createBet(bytes32 hashBet, string nameEvent);
+	event CreateBet(
+		bytes32 hashBet,
+		string nameEvent,
+		address user,
+		uint amountBookmaker,
+		uint8 coef,
+		uint minutesDeadlineCancel
+	);
+	event AcceptBet(
+		bytes32 hashBet,
+		string nameEvent,
+		address user,
+		uint amountBookmaker,
+		uint amountPlayer,
+		uint8 coef,
+		uint minutesDeadlineCancel
+	);
+	event CancelBet(
+		bytes32 hashBet,
+		string nameEvent,
+		address user,
+		uint amountBookmaker,
+		uint amountPlayer,
+		uint8 coef,
+		uint minutesDeadlineCancel
+	);
+
 	mapping(bytes32 => Bet) _bets;
 	
 	constructor() public {
@@ -181,9 +207,8 @@ contract BetsMatch is Admins {
 		bytes32 hashBet,
 		string nameEvent,
 		address player,
-		uint minutesDeadLineCancel,
-		uint amount;
-		uint coef
+		uint minutesDeadlineCancel,
+		uint8 coef
 	)
 		public
 		payable
@@ -192,6 +217,18 @@ contract BetsMatch is Admins {
 		notZeroAmountEther()
 	{
 		require(_bets[hashBet].player == address(0x0));	
+		uint  amountBookmaker = msg.value;
+
+		Bet memory bet = new Bet(
+			player,
+			nameEvent,
+			amountBookmaker, // in wei
+			0, // amountPlayer // in wei
+			0, // time
+			coef // x2 x4 etc ..
+		);
+		_bets[hashBet] = bet;
+		// emit CreateBet(hashBet, nameEvent, user, some params .... );
 	}
 
 	function 	acceptBet(
@@ -200,12 +237,33 @@ contract BetsMatch is Admins {
 		public
 		payable
 		notZeroAmountEther()
+		onlyForPlayerOfThisBet()
 	{
+		// uint amount = msg.value;
 		require(_bets[hashBet].player == msg.sender);
+		require(_bets[hashBet].amount == msg.value.div(coef));
+
+		_bets[hashBet].amountPlayer = msg.value;
+		// emit AcceptBet( some params .... );
+	}
+
+	function 	cancelBet(bytes32 hashBet) public onlyForPlayerOfThisBet() {
+		// somecode
+		// emit CancelBet( some params ..... );
 	}
 
 	modifier 	notZeroAmountEther() { 
 		require(msg.value != 0);
-		_; 
+		_;
+	}
+
+	modifier	onlyForPlayerOfThisBet(uint _time) { 
+		require (now >= _time); 
+		_;
+	}
+
+	modifier 	deadline(uint time) { 
+		require (now >= time); 
+		_;
 	}
 }
