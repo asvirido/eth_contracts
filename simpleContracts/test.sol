@@ -207,6 +207,15 @@ contract BetsMatch is Admins {
 		uint8 coef,
 		uint minutesDeadlineCancel
 	);
+
+	event RecordingResultsOfBet(
+		bytes32 hashBet,
+		string nameEvent,
+		address winner,
+		uint amountReward,
+		uint fee
+	);
+	
 	
 	constructor() public {
 		// some code
@@ -290,12 +299,15 @@ contract BetsMatch is Admins {
 		uint amountBookmaker = _bets[hashBet].amountBookmaker;
 		_bets[hashBet].amountPlayer = 0;
 		_bets[hashBet].amountBookmaker = 0;
+		
 		if (amountPlayer > 0) {
 			withdrawEth(amountPlayer, msg.sender);
 		}
+		
 		if (amountBookmaker > 0) {
 			withdrawEth(amountBookmaker, _owner/* for testing */);
 		}
+
 		emit CancelBet(
 			hashBet,
 			_bets[hashBet].nameEvent,
@@ -309,8 +321,39 @@ contract BetsMatch is Admins {
 
 	function 	withdrawEth(uint amount, address user) internal {
 		require(amount > 0);
-		msg.sender.transfer(amount);
+		user.transfer(amount);
 	}
+
+	function 	recordingResultsOfBet(
+		bytes32 hashBet,
+		bool status
+	)
+		public
+		onlyModerator()
+	{	
+		// address winner = msg.sender;
+		uint amountReward = _bets[hashBet].amountBookmaker.add(_bets[hashBet].amountPlayer);
+		uint fee = 0;
+
+		if (status == true) {
+			withdrawEth(amountReward, _bets[hashBet].player);
+		}
+		else {
+			withdrawEth(amountReward, msg.sender);
+		}
+		emit RecordingResultsOfBet(
+			hashBet,
+			_bets[hashBet].nameEvent,
+			winner,
+			amountReward,
+			fee
+		);
+	}
+	
+	// function 	sendReward(bool status, ) internal {
+		
+	// }
+	
 
 	modifier 	notZeroAmountEther() { 
 		require(msg.value != 0);
