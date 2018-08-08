@@ -235,7 +235,7 @@ contract BetsMatch is Admins {
 			player,
 			nameEvent, /* only English */
 			amountBookmaker, /* wei */
-			0, /* wei amountPlayer */
+			0, /* wei amountPlayer */ // msg.value / coef 
 			coef, /* x2 x4 etc */
 			minutesDeadlineCancel
 		);
@@ -262,7 +262,8 @@ contract BetsMatch is Admins {
 		onlyForPlayerOfThisBet(hashBet)
 	{
 		require(_bets[hashBet].player == msg.sender);
-		require(_bets[hashBet].amountPlayer == msg.value.div(_bets[hashBet].coef));
+		require(_bets[hashBet].amountPlayer == 0);
+		require(_bets[hashBet].amountBookmaker == msg.value.mul(_bets[hashBet].coef));
 
 		_bets[hashBet].amountPlayer = msg.value;
 		emit AcceptBet(
@@ -285,15 +286,30 @@ contract BetsMatch is Admins {
 		public
 		onlyForPlayerOfThisBet(hashBet)
 	{
+		uint amountPlayer = _bets[hashBet].amountPlayer;
+		uint amountBookmaker = _bets[hashBet].amountBookmaker;
+		_bets[hashBet].amountPlayer = 0;
+		_bets[hashBet].amountBookmaker = 0;
+		if (amountPlayer > 0) {
+			withdrawEth(amountPlayer, msg.sender);
+		}
+		if (amountBookmaker > 0) {
+			withdrawEth(amountBookmaker, _owner/* for testing */);
+		}
 		emit CancelBet(
 			hashBet,
 			_bets[hashBet].nameEvent,
 			_bets[hashBet].player,
-			_bets[hashBet].amountBookmaker,
-			_bets[hashBet].amountPlayer,
+			amountBookmaker,
+			amountPlayer,
 			_bets[hashBet].coef,
 			_bets[hashBet].minutesDeadlineCancel
 		);
+	}
+
+	function 	withdrawEth(uint amount, address user) internal {
+		require(amount > 0);
+		msg.sender.transfer(amount);
 	}
 
 	modifier 	notZeroAmountEther() { 
