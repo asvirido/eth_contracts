@@ -1,5 +1,7 @@
 pragma solidity ^0.4.24;
 
+import "truffle/Assert.sol";
+
 // Proxy contract for testing throws
 contract ThrowProxy {
 	address public target;
