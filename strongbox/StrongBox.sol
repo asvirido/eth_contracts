@@ -18,19 +18,16 @@ contract SafeMath {
 contract StrongBox is SafeMath {
 	mapping ( bytes32 => mapping ( address => uint ) ) public _tokens;
 	
-	/* - */
+
 	function () public payable {
 		require( false );
 	}
 	
-	/*
-	*	Remix doesnt work. Work only myetherwallet 
-	*/
 	function 	depositEth( bytes32 hash ) public payable {
 		assertQuantity( msg.value );
 		_tokens[hash][0] = safeAdd( _tokens[hash][0], msg.value );
 	}
-	/* + */
+
 	function 	withdrawEth( string key ) public {
 		bytes32 	hash;
 		uint		amount;
@@ -41,7 +38,7 @@ contract StrongBox is SafeMath {
 		_tokens[hash][0] = 0;
 		msg.sender.transfer( amount );
 	}
-	/* - */
+
 	function 	depositToken( bytes32 hash, address token, uint amount ) public {
 		assertQuantity( amount );
 		assertToken( token );
@@ -50,7 +47,7 @@ contract StrongBox is SafeMath {
 			assert( false );
 		}
 	}
-	/* - */
+
 	function 	withdrawToken( string key, address token ) public {
 		uint 		amount;
 		bytes32		hash;
@@ -64,7 +61,7 @@ contract StrongBox is SafeMath {
 			assert( false );
 		}
 	}
-	/* - */
+
 	function	transferBox( string keyTo, address token, bytes32 from ) public {
 		uint 		amount;
 		bytes32		hash;
